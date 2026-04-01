@@ -1,0 +1,610 @@
+import React, { useState, useMemo, useEffect } from 'react';
+import { Calendar, Clock, Tv, Users, Filter, X, Save, CheckCircle2, Trophy, ListOrdered, Swords, Info, MapPin } from 'lucide-react';
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
+import { getFirestore, collection, doc, setDoc, onSnapshot } from 'firebase/firestore';
+
+// --- CONFIGURACIÓN DE FIREBASE ---
+const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'mundial-2026-app';
+
+// --- DATOS ESTÁTICOS ---
+const TEAM_FLAGS = {
+  "MÉXICO": "🇲🇽", "SUDÁFRICA": "🇿🇦", "COREA DEL SUR": "🇰🇷", "REP. CHECA": "🇨🇿",
+  "CANADÁ": "🇨🇦", "BOSNIA": "🇧🇦", "ESTADOS UNIDOS": "🇺🇸", "PARAGUAY": "🇵🇾",
+  "QATAR": "🇶🇦", "SUIZA": "🇨🇭", "BRASIL": "🇧🇷", "MARRUECOS": "🇲🇦",
+  "HAITÍ": "🇭🇹", "ESCOCIA": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "AUSTRALIA": "🇦🇺", "TURQUÍA": "🇹🇷",
+  "ALEMANIA": "🇩🇪", "CURAZAO": "🇨🇼", "PAÍSES BAJOS": "🇳🇱", "JAPÓN": "🇯🇵",
+  "COSTA DE MARFIL": "🇨🇮", "ECUADOR": "🇪🇨", "SUECIA": "🇸🇪", "TÚNEZ": "🇹🇳",
+  "ESPAÑA": "🇪🇸", "CABO VERDE": "🇨🇻", "BÉLGICA": "🇧🇪", "EGIPTO": "🇪🇬",
+  "ARABIA SAUDITA": "🇸🇦", "URUGUAY": "🇺🇾", "IRÁN": "🇮🇷", "NUEVA ZELANDA": "🇳🇿",
+  "FRANCIA": "🇫🇷", "SENEGAL": "🇸🇳", "IRAK": "🇮🇶", "NORUEGA": "🇳🇴",
+  "ARGENTINA": "🇦🇷", "ARGELIA": "🇩🇿", "AUSTRIA": "🇦🇹", "JORDANIA": "🇯🇴",
+  "PORTUGAL": "🇵🇹", "RD CONGO": "🇨🇩", "INGLATERRA": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "CROACIA": "🇭🇷",
+  "GHANA": "🇬🇭", "PANAMÁ": "🇵🇦", "UZBEKISTÁN": "🇺🇿", "COLOMBIA": "🇨🇴"
+};
+
+const ABIERTA = ["ViX", "TUDN", "TV Azteca"];
+const STREAMING = ["ViX"];
+
+// Lista de Partidos con Sedes Oficiales
+const MATCHES_DATA = [
+  { id: "m1", date: "11 de junio", time: "2:00 p. m.", matchday: 1, group: "A", team1: "MÉXICO", team2: "SUDÁFRICA", tv: ABIERTA, venue: "Estadio Azteca, CDMX 🇲🇽" },
+  { id: "m2", date: "11 de junio", time: "9:00 p. m.", matchday: 1, group: "A", team1: "COREA DEL SUR", team2: "REP. CHECA", tv: STREAMING, venue: "Estadio Akron, Guadalajara 🇲🇽" },
+  { id: "m3", date: "12 de junio", time: "2:00 p. m.", matchday: 1, group: "B", team1: "CANADÁ", team2: "BOSNIA", tv: STREAMING, venue: "BMO Field, Toronto 🇨🇦" },
+  { id: "m4", date: "12 de junio", time: "8:00 p. m.", matchday: 1, group: "D", team1: "ESTADOS UNIDOS", team2: "PARAGUAY", tv: ABIERTA, venue: "SoFi Stadium, Los Ángeles 🇺🇸" },
+  { id: "m5", date: "13 de junio", time: "2:00 p. m.", matchday: 1, group: "B", team1: "QATAR", team2: "SUIZA", tv: STREAMING, venue: "BC Place, Vancouver 🇨🇦" },
+  { id: "m6", date: "13 de junio", time: "5:00 p. m.", matchday: 1, group: "C", team1: "BRASIL", team2: "MARRUECOS", tv: ABIERTA, venue: "MetLife Stadium, Nueva York 🇺🇸" },
+  { id: "m7", date: "13 de junio", time: "8:00 p. m.", matchday: 1, group: "C", team1: "HAITÍ", team2: "ESCOCIA", tv: STREAMING, venue: "Lincoln Financial, Filadelfia 🇺🇸" },
+  { id: "m8", date: "13 de junio", time: "11:00 p. m.", matchday: 1, group: "D", team1: "AUSTRALIA", team2: "TURQUÍA", tv: STREAMING, venue: "Lumen Field, Seattle 🇺🇸" },
+  { id: "m9", date: "14 de junio", time: "12:00 p. m.", matchday: 1, group: "E", team1: "ALEMANIA", team2: "CURAZAO", tv: STREAMING, venue: "Hard Rock Stadium, Miami 🇺🇸" },
+  { id: "m10", date: "14 de junio", time: "3:00 p. m.", matchday: 1, group: "F", team1: "PAÍSES BAJOS", team2: "JAPÓN", tv: ABIERTA, venue: "AT&T Stadium, Dallas 🇺🇸" },
+  { id: "m11", date: "14 de junio", time: "6:00 p. m.", matchday: 1, group: "E", team1: "COSTA DE MARFIL", team2: "ECUADOR", tv: STREAMING, venue: "Mercedes-Benz, Atlanta 🇺🇸" },
+  { id: "m12", date: "14 de junio", time: "9:00 p. m.", matchday: 1, group: "F", team1: "SUECIA", team2: "TÚNEZ", tv: STREAMING, venue: "NRG Stadium, Houston 🇺🇸" },
+  { id: "m13", date: "15 de junio", time: "11:00 a. m.", matchday: 1, group: "H", team1: "ESPAÑA", team2: "CABO VERDE", tv: STREAMING, venue: "Arrowhead Stadium, Kansas C. 🇺🇸" },
+  { id: "m14", date: "15 de junio", time: "2:00 p. m.", matchday: 1, group: "G", team1: "BÉLGICA", team2: "EGIPTO", tv: STREAMING, venue: "Gillette Stadium, Boston 🇺🇸" },
+  { id: "m15", date: "15 de junio", time: "5:00 p. m.", matchday: 1, group: "H", team1: "ARABIA SAUDITA", team2: "URUGUAY", tv: STREAMING, venue: "AT&T Stadium, Dallas 🇺🇸" },
+  { id: "m16", date: "15 de junio", time: "8:00 p. m.", matchday: 1, group: "G", team1: "IRÁN", team2: "NUEVA ZELANDA", tv: STREAMING, venue: "MetLife Stadium, Nueva York 🇺🇸" },
+  { id: "m17", date: "16 de junio", time: "2:00 p. m.", matchday: 1, group: "I", team1: "FRANCIA", team2: "SENEGAL", tv: STREAMING, venue: "Levi's Stadium, San Francisco 🇺🇸" },
+  { id: "m18", date: "16 de junio", time: "5:00 p. m.", matchday: 1, group: "I", team1: "IRAK", team2: "NORUEGA", tv: STREAMING, venue: "SoFi Stadium, Los Ángeles 🇺🇸" },
+  { id: "m19", date: "16 de junio", time: "8:00 p. m.", matchday: 1, group: "J", team1: "ARGENTINA", team2: "ARGELIA", tv: ABIERTA, venue: "Hard Rock Stadium, Miami 🇺🇸" },
+  { id: "m20", date: "16 de junio", time: "11:00 p. m.", matchday: 1, group: "J", team1: "AUSTRIA", team2: "JORDANIA", tv: STREAMING, venue: "NRG Stadium, Houston 🇺🇸" },
+  { id: "m21", date: "17 de junio", time: "12:00 p. m.", matchday: 1, group: "K", team1: "PORTUGAL", team2: "RD CONGO", tv: STREAMING, venue: "Estadio BBVA, Monterrey 🇲🇽" },
+  { id: "m22", date: "17 de junio", time: "3:00 p. m.", matchday: 1, group: "L", team1: "INGLATERRA", team2: "CROACIA", tv: ABIERTA, venue: "BMO Field, Toronto 🇨🇦" },
+  { id: "m23", date: "17 de junio", time: "6:00 p. m.", matchday: 1, group: "L", team1: "GHANA", team2: "PANAMÁ", tv: STREAMING, venue: "BC Place, Vancouver 🇨🇦" },
+  { id: "m24", date: "17 de junio", time: "9:00 p. m.", matchday: 1, group: "K", team1: "UZBEKISTÁN", team2: "COLOMBIA", tv: STREAMING, venue: "Estadio Akron, Guadalajara 🇲🇽" },
+  { id: "m25", date: "18 de junio", time: "11:00 a. m.", matchday: 2, group: "A", team1: "SUDÁFRICA", team2: "REP. CHECA", tv: STREAMING, venue: "Estadio BBVA, Monterrey 🇲🇽" },
+  { id: "m26", date: "18 de junio", time: "2:00 p. m.", matchday: 2, group: "B", team1: "BOSNIA", team2: "SUIZA", tv: STREAMING, venue: "BMO Field, Toronto 🇨🇦" },
+  { id: "m27", date: "18 de junio", time: "5:00 p. m.", matchday: 2, group: "B", team1: "CANADÁ", team2: "QATAR", tv: STREAMING, venue: "BC Place, Vancouver 🇨🇦" },
+  { id: "m28", date: "18 de junio", time: "8:00 p. m.", matchday: 2, group: "A", team1: "MÉXICO", team2: "COREA DEL SUR", tv: ABIERTA, venue: "Estadio Akron, Guadalajara 🇲🇽" },
+  { id: "m29", date: "19 de junio", time: "2:00 p. m.", matchday: 2, group: "D", team1: "ESTADOS UNIDOS", team2: "AUSTRALIA", tv: STREAMING, venue: "Lumen Field, Seattle 🇺🇸" },
+  { id: "m30", date: "19 de junio", time: "5:00 p. m.", matchday: 2, group: "C", team1: "ESCOCIA", team2: "MARRUECOS", tv: STREAMING, venue: "Gillette Stadium, Boston 🇺🇸" },
+  { id: "m31", date: "19 de junio", time: "8:00 p. m.", matchday: 2, group: "C", team1: "BRASIL", team2: "HAITÍ", tv: ABIERTA, venue: "MetLife Stadium, Nueva York 🇺🇸" },
+  { id: "m32", date: "19 de junio", time: "11:00 p. m.", matchday: 2, group: "D", team1: "TURQUÍA", team2: "PARAGUAY", tv: STREAMING, venue: "Levi's Stadium, San Francisco 🇺🇸" },
+  { id: "m33", date: "20 de junio", time: "12:00 p. m.", matchday: 2, group: "F", team1: "PAÍSES BAJOS", team2: "SUECIA", tv: ABIERTA, venue: "AT&T Stadium, Dallas 🇺🇸" },
+  { id: "m34", date: "20 de junio", time: "3:00 p. m.", matchday: 2, group: "E", team1: "ALEMANIA", team2: "COSTA DE MARFIL", tv: STREAMING, venue: "Mercedes-Benz, Atlanta 🇺🇸" },
+  { id: "m35", date: "20 de junio", time: "7:00 p. m.", matchday: 2, group: "E", team1: "ECUADOR", team2: "CURAZAO", tv: STREAMING, venue: "Hard Rock Stadium, Miami 🇺🇸" },
+  { id: "m36", date: "20 de junio", time: "11:00 p. m.", matchday: 2, group: "F", team1: "TÚNEZ", team2: "JAPÓN", tv: STREAMING, venue: "NRG Stadium, Houston 🇺🇸" },
+  { id: "m37", date: "21 de junio", time: "11:00 a. m.", matchday: 2, group: "H", team1: "ESPAÑA", team2: "ARABIA SAUDITA", tv: ABIERTA, venue: "Arrowhead Stadium, Kansas C. 🇺🇸" },
+  { id: "m38", date: "21 de junio", time: "2:00 p. m.", matchday: 2, group: "G", team1: "BÉLGICA", team2: "IRÁN", tv: STREAMING, venue: "Lincoln Financial, Filadelfia 🇺🇸" },
+  { id: "m39", date: "21 de junio", time: "5:00 p. m.", matchday: 2, group: "H", team1: "URUGUAY", team2: "CABO VERDE", tv: STREAMING, venue: "AT&T Stadium, Dallas 🇺🇸" },
+  { id: "m40", date: "21 de junio", time: "8:00 p. m.", matchday: 2, group: "G", team1: "NUEVA ZELANDA", team2: "EGIPTO", tv: STREAMING, venue: "MetLife Stadium, Nueva York 🇺🇸" },
+  { id: "m41", date: "22 de junio", time: "12:00 p. m.", matchday: 2, group: "J", team1: "ARGENTINA", team2: "AUSTRIA", tv: STREAMING, venue: "Hard Rock Stadium, Miami 🇺🇸" },
+  { id: "m42", date: "22 de junio", time: "4:00 p. m.", matchday: 2, group: "I", team1: "FRANCIA", team2: "IRAK", tv: STREAMING, venue: "Levi's Stadium, San Francisco 🇺🇸" },
+  { id: "m43", date: "22 de junio", time: "7:00 p. m.", matchday: 2, group: "I", team1: "NORUEGA", team2: "SENEGAL", tv: ABIERTA, venue: "SoFi Stadium, Los Ángeles 🇺🇸" },
+  { id: "m44", date: "22 de junio", time: "10:00 p. m.", matchday: 2, group: "J", team1: "JORDANIA", team2: "ARGELIA", tv: STREAMING, venue: "NRG Stadium, Houston 🇺🇸" },
+  { id: "m45", date: "23 de junio", time: "12:00 p. m.", matchday: 2, group: "K", team1: "PORTUGAL", team2: "UZBEKISTÁN", tv: STREAMING, venue: "Estadio BBVA, Monterrey 🇲🇽" },
+  { id: "m46", date: "23 de junio", time: "3:00 p. m.", matchday: 2, group: "L", team1: "INGLATERRA", team2: "GHANA", tv: STREAMING, venue: "BMO Field, Toronto 🇨🇦" },
+  { id: "m47", date: "23 de junio", time: "6:00 p. m.", matchday: 2, group: "K", team1: "PANAMÁ", team2: "CROACIA", tv: STREAMING, venue: "Estadio Akron, Guadalajara 🇲🇽" },
+  { id: "m48", date: "23 de junio", time: "9:00 p. m.", matchday: 2, group: "K", team1: "COLOMBIA", team2: "RD CONGO", tv: ABIERTA, venue: "Estadio Azteca, CDMX 🇲🇽" },
+  { id: "m49", date: "24 de junio", time: "2:00 p. m.", matchday: 3, group: "B", team1: "SUIZA", team2: "CANADÁ", tv: STREAMING, venue: "BC Place, Vancouver 🇨🇦" },
+  { id: "m50", date: "24 de junio", time: "2:00 p. m.", matchday: 3, group: "B", team1: "BOSNIA", team2: "QATAR", tv: STREAMING, venue: "BMO Field, Toronto 🇨🇦" },
+  { id: "m51", date: "24 de junio", time: "5:00 p. m.", matchday: 3, group: "C", team1: "ESCOCIA", team2: "BRASIL", tv: STREAMING, venue: "MetLife Stadium, Nueva York 🇺🇸" },
+  { id: "m52", date: "24 de junio", time: "5:00 p. m.", matchday: 3, group: "C", team1: "MARRUECOS", team2: "HAITÍ", tv: STREAMING, venue: "Lincoln Financial, Filadelfia 🇺🇸" },
+  { id: "m53", date: "24 de junio", time: "8:00 p. m.", matchday: 3, group: "A", team1: "REP. CHECA", team2: "MÉXICO", tv: ABIERTA, venue: "Estadio Azteca, CDMX 🇲🇽" },
+  { id: "m54", date: "24 de junio", time: "8:00 p. m.", matchday: 3, group: "A", team1: "SUDÁFRICA", team2: "COREA DEL SUR", tv: STREAMING, venue: "Estadio BBVA, Monterrey 🇲🇽" },
+  { id: "m55", date: "25 de junio", time: "3:00 p. m.", matchday: 3, group: "E", team1: "ECUADOR", team2: "ALEMANIA", tv: ABIERTA, venue: "Mercedes-Benz, Atlanta 🇺🇸" },
+  { id: "m56", date: "25 de junio", time: "3:00 p. m.", matchday: 3, group: "E", team1: "CURAZAO", team2: "COSTA DE MARFIL", tv: STREAMING, venue: "Hard Rock Stadium, Miami 🇺🇸" },
+  { id: "m57", date: "25 de junio", time: "6:00 p. m.", matchday: 3, group: "F", team1: "TÚNEZ", team2: "PAÍSES BAJOS", tv: STREAMING, venue: "NRG Stadium, Houston 🇺🇸" },
+  { id: "m58", date: "25 de junio", time: "6:00 p. m.", matchday: 3, group: "F", team1: "JAPÓN", team2: "SUECIA", tv: STREAMING, venue: "AT&T Stadium, Dallas 🇺🇸" },
+  { id: "m59", date: "25 de junio", time: "11:00 p. m.", matchday: 3, group: "D", team1: "TURQUÍA", team2: "ESTADOS UNIDOS", tv: STREAMING, venue: "SoFi Stadium, Los Ángeles 🇺🇸" },
+  { id: "m60", date: "25 de junio", time: "11:00 p. m.", matchday: 3, group: "D", team1: "PARAGUAY", team2: "AUSTRALIA", tv: STREAMING, venue: "Lumen Field, Seattle 🇺🇸" },
+  { id: "m61", date: "26 de junio", time: "2:00 p. m.", matchday: 3, group: "I", team1: "NORUEGA", team2: "FRANCIA", tv: STREAMING, venue: "Levi's Stadium, San Francisco 🇺🇸" },
+  { id: "m62", date: "26 de junio", time: "2:00 p. m.", matchday: 3, group: "I", team1: "SENEGAL", team2: "IRAK", tv: STREAMING, venue: "SoFi Stadium, Los Ángeles 🇺🇸" },
+  { id: "m63", date: "26 de junio", time: "7:00 p. m.", matchday: 3, group: "H", team1: "URUGUAY", team2: "ESPAÑA", tv: ABIERTA, venue: "Gillette Stadium, Boston 🇺🇸" },
+  { id: "m64", date: "26 de junio", time: "7:00 p. m.", matchday: 3, group: "H", team1: "CABO VERDE", team2: "ARABIA SAUDITA", tv: STREAMING, venue: "Lincoln Financial, Filadelfia 🇺🇸" },
+  { id: "m65", date: "26 de junio", time: "10:00 p. m.", matchday: 3, group: "G", team1: "NUEVA ZELANDA", team2: "BÉLGICA", tv: STREAMING, venue: "MetLife Stadium, Nueva York 🇺🇸" },
+  { id: "m66", date: "26 de junio", time: "10:00 p. m.", matchday: 3, group: "G", team1: "EGIPTO", team2: "IRÁN", tv: STREAMING, venue: "Arrowhead Stadium, Kansas C. 🇺🇸" },
+  { id: "m67", date: "27 de junio", time: "4:00 p. m.", matchday: 3, group: "L", team1: "PANAMÁ", team2: "INGLATERRA", tv: ABIERTA, venue: "BC Place, Vancouver 🇨🇦" },
+  { id: "m68", date: "27 de junio", time: "4:00 p. m.", matchday: 3, group: "L", team1: "CROACIA", team2: "GHANA", tv: STREAMING, venue: "BMO Field, Toronto 🇨🇦" },
+  { id: "m69", date: "27 de junio", time: "6:30 p. m.", matchday: 3, group: "K", team1: "COLOMBIA", team2: "PORTUGAL", tv: ABIERTA, venue: "Estadio Akron, Guadalajara 🇲🇽" },
+  { id: "m70", date: "27 de junio", time: "6:30 p. m.", matchday: 3, group: "K", team1: "RD CONGO", team2: "UZBEKISTÁN", tv: STREAMING, venue: "Estadio BBVA, Monterrey 🇲🇽" },
+  { id: "m71", date: "27 de junio", time: "11:00 p. m.", matchday: 3, group: "J", team1: "JORDANIA", team2: "ARGENTINA", tv: STREAMING, venue: "AT&T Stadium, Dallas 🇺🇸" },
+  { id: "m72", date: "27 de junio", time: "11:00 p. m.", matchday: 3, group: "J", team1: "ARGELIA", team2: "AUSTRIA", tv: STREAMING, venue: "NRG Stadium, Houston 🇺🇸" }
+];
+
+// 16vos con Sedes Asignadas
+const ROUND_OF_32 = [
+  { id: 'k1', matchTitle: 'P33', label1: '1° Grupo A', group1: 'A', pos1: 0, label2: '3° Grupo C/E/F/H/I', group2: null, pos2: 2, venue: "Estadio Azteca, CDMX 🇲🇽" },
+  { id: 'k2', matchTitle: 'P34', label1: '2° Grupo A', group1: 'A', pos1: 1, label2: '2° Grupo B', group2: 'B', pos2: 1, venue: "SoFi Stadium, Los Ángeles 🇺🇸" },
+  { id: 'k3', matchTitle: 'P35', label1: '1° Grupo B', group1: 'B', pos1: 0, label2: '3° Grupo E/F/G/I/J', group2: null, pos2: 2, venue: "BC Place, Vancouver 🇨🇦" },
+  { id: 'k4', matchTitle: 'P36', label1: '1° Grupo C', group1: 'C', pos1: 0, label2: '3° Grupo F/G/H/I/J', group2: null, pos2: 2, venue: "MetLife Stadium, Nueva York 🇺🇸" },
+  { id: 'k5', matchTitle: 'P37', label1: '2° Grupo C', group1: 'C', pos1: 1, label2: '2° Grupo F', group2: 'F', pos2: 1, venue: "Estadio BBVA, Monterrey 🇲🇽" },
+  { id: 'k6', matchTitle: 'P38', label1: '1° Grupo D', group1: 'D', pos1: 0, label2: '3° Grupo B/E/F/I/J', group2: null, pos2: 2, venue: "AT&T Stadium, Dallas 🇺🇸" },
+  { id: 'k7', matchTitle: 'P39', label1: '1° Grupo G', group1: 'G', pos1: 0, label2: '3° Grupo A/B/C/E/F', group2: null, pos2: 2, venue: "Hard Rock Stadium, Miami 🇺🇸" },
+  { id: 'k8', matchTitle: 'P40', label1: '1° Grupo E', group1: 'E', pos1: 0, label2: '3° Grupo A/B/C/D/F', group2: null, pos2: 2, venue: "Mercedes-Benz, Atlanta 🇺🇸" },
+  { id: 'k9', matchTitle: 'P41', label1: '1° Grupo F', group1: 'F', pos1: 0, label2: '2° Grupo C', group2: 'C', pos2: 1, venue: "NRG Stadium, Houston 🇺🇸" },
+  { id: 'k10', matchTitle: 'P42', label1: '2° Grupo E', group1: 'E', pos1: 1, label2: '2° Grupo H', group2: 'H', pos2: 1, venue: "Lincoln Financial, Filadelfia 🇺🇸" },
+  { id: 'k11', matchTitle: 'P43', label1: '1° Grupo H', group1: 'H', pos1: 0, label2: '2° Grupo J', group2: 'J', pos2: 1, venue: "Gillette Stadium, Boston 🇺🇸" },
+  { id: 'k12', matchTitle: 'P44', label1: '1° Grupo I', group1: 'I', pos1: 0, label2: '3° Grupo C/D/F/G/H', group2: null, pos2: 2, venue: "Lumen Field, Seattle 🇺🇸" },
+  { id: 'k13', matchTitle: 'P45', label1: '2° Grupo G', group1: 'G', pos1: 1, label2: '2° Grupo I', group2: 'I', pos2: 1, venue: "Levi's Stadium, San Francisco 🇺🇸" },
+  { id: 'k14', matchTitle: 'P46', label1: '1° Grupo K', group1: 'K', pos1: 0, label2: '3° Grupo B/C/E/G/H', group2: null, pos2: 2, venue: "Arrowhead Stadium, Kansas C. 🇺🇸" },
+  { id: 'k15', matchTitle: 'P47', label1: '1° Grupo L', group1: 'L', pos1: 0, label2: '3° Grupo E/H/I/J/K', group2: null, pos2: 2, venue: "BMO Field, Toronto 🇨🇦" },
+  { id: 'k16', matchTitle: 'P48', label1: '1° Grupo J', group1: 'J', pos1: 0, label2: '2° Grupo H', group2: 'H', pos2: 1, venue: "Estadio Akron, Guadalajara 🇲🇽" }
+];
+
+export default function App() {
+  const [user, setUser] = useState(null);
+  const [scores, setScores] = useState({});
+  const [savingId, setSavingId] = useState(null);
+  const [savedId, setSavedId] = useState(null);
+  
+  const [activeTab, setActiveTab] = useState('partidos');
+  const [filterDate, setFilterDate] = useState("");
+  const [filterGroup, setFilterGroup] = useState("");
+  const [filterTeam, setFilterTeam] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+
+  // --- FIREBASE INIT ---
+  useEffect(() => {
+    const initAuth = async () => {
+      try {
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(auth);
+        }
+      } catch (error) {
+        console.error("Auth error:", error);
+      }
+    };
+    initAuth();
+    const unsubscribe = onAuthStateChanged(auth, setUser);
+    return () => unsubscribe();
+  }, []);
+
+  // --- FETCH RESULTADOS ---
+  useEffect(() => {
+    if (!user) return;
+    const scoresRef = collection(db, 'artifacts', appId, 'public', 'data', 'match_scores');
+    const unsubscribe = onSnapshot(scoresRef, (snapshot) => {
+      const loadedScores = {};
+      snapshot.forEach((doc) => {
+        loadedScores[doc.id] = doc.data();
+      });
+      setScores(loadedScores);
+    }, (error) => console.error("Error fetch:", error));
+    return () => unsubscribe();
+  }, [user]);
+
+  // --- CÁLCULO DE POSICIONES (GRUPOS) ---
+  const standings = useMemo(() => {
+    const groups = {};
+    const uniqueGroups = [...new Set(MATCHES_DATA.map(m => m.group))].sort();
+    
+    uniqueGroups.forEach(g => {
+      groups[g] = {};
+      MATCHES_DATA.filter(m => m.group === g).forEach(m => {
+        if(!groups[g][m.team1]) groups[g][m.team1] = { pj:0, pg:0, pe:0, pp:0, gf:0, gc:0, pts:0 };
+        if(!groups[g][m.team2]) groups[g][m.team2] = { pj:0, pg:0, pe:0, pp:0, gf:0, gc:0, pts:0 };
+      });
+    });
+
+    MATCHES_DATA.forEach(match => {
+      const result = scores[match.id];
+      if (result && result.score1 !== undefined && result.score2 !== undefined && result.score1 !== '' && result.score2 !== '') {
+        const s1 = Number(result.score1);
+        const s2 = Number(result.score2);
+        const g = match.group;
+        const t1 = match.team1;
+        const t2 = match.team2;
+
+        groups[g][t1].pj += 1; groups[g][t2].pj += 1;
+        groups[g][t1].gf += s1; groups[g][t2].gf += s2;
+        groups[g][t1].gc += s2; groups[g][t2].gc += s1;
+
+        if (s1 > s2) {
+          groups[g][t1].pg += 1; groups[g][t1].pts += 3; groups[g][t2].pp += 1;
+        } else if (s1 < s2) {
+          groups[g][t2].pg += 1; groups[g][t2].pts += 3; groups[g][t1].pp += 1;
+        } else {
+          groups[g][t1].pe += 1; groups[g][t1].pts += 1; groups[g][t2].pe += 1; groups[g][t2].pts += 1;
+        }
+      }
+    });
+
+    const sortedGroups = {};
+    Object.keys(groups).forEach(g => {
+      sortedGroups[g] = Object.entries(groups[g]).map(([team, stats]) => ({
+        team, ...stats, dif: stats.gf - stats.gc
+      })).sort((a, b) => {
+        if (b.pts !== a.pts) return b.pts - a.pts;
+        if (b.dif !== a.dif) return b.dif - a.dif;
+        return b.gf - a.gf;
+      });
+    });
+
+    return sortedGroups;
+  }, [scores]);
+
+  // --- CÁLCULO MEJORES TERCEROS ---
+  const bestThirds = useMemo(() => {
+    if (Object.keys(standings).length === 0) return [];
+    const thirds = Object.keys(standings).map(g => ({ ...standings[g][2], group: g }));
+    return thirds.sort((a, b) => {
+      if (b.pts !== a.pts) return b.pts - a.pts;
+      if (b.dif !== a.dif) return b.dif - a.dif;
+      return b.gf - a.gf;
+    });
+  }, [standings]);
+
+  const getTeamFromStandings = (group, pos) => group && standings[group] && standings[group][pos] ? standings[group][pos] : null;
+
+  // --- MANEJO DE RESULTADOS ---
+  const handleScoreChange = (matchId, team, value) => {
+    if (value !== '' && !/^\d+$/.test(value)) return;
+    setScores(prev => ({ ...prev, [matchId]: { ...prev[matchId], [team]: value } }));
+  };
+
+  const saveScore = async (matchId) => {
+    if (!user) return;
+    const matchScore = scores[matchId];
+    if (!matchScore || matchScore.score1 === undefined || matchScore.score1 === '' || matchScore.score2 === undefined || matchScore.score2 === '') return; 
+
+    setSavingId(matchId);
+    try {
+      const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'match_scores', matchId);
+      await setDoc(docRef, {
+        score1: Number(matchScore.score1),
+        score2: Number(matchScore.score2),
+        updatedBy: user.uid,
+        updatedAt: new Date().toISOString()
+      });
+      setSavingId(null);
+      setSavedId(matchId);
+      setTimeout(() => setSavedId(null), 2000);
+    } catch (error) {
+      console.error("Error guardando:", error);
+      setSavingId(null);
+    }
+  };
+
+  // --- FILTROS ---
+  const uniqueDates = useMemo(() => [...new Set(MATCHES_DATA.map(m => m.date))], []);
+  const uniqueGroups = useMemo(() => [...new Set(MATCHES_DATA.map(m => m.group))].sort(), []);
+  const uniqueTeams = useMemo(() => {
+    const teams = new Set();
+    MATCHES_DATA.forEach(m => { teams.add(m.team1); teams.add(m.team2); });
+    return [...teams].sort();
+  }, []);
+
+  const filteredMatches = useMemo(() => {
+    return MATCHES_DATA.filter(match => {
+      const matchDate = filterDate ? match.date === filterDate : true;
+      const matchGroup = filterGroup ? match.group === filterGroup : true;
+      const matchTeam = filterTeam ? (match.team1 === filterTeam || match.team2 === filterTeam) : true;
+      return matchDate && matchGroup && matchTeam;
+    });
+  }, [filterDate, filterGroup, filterTeam]);
+
+  const clearFilters = () => { setFilterDate(""); setFilterGroup(""); setFilterTeam(""); };
+
+  const getTvBadgeColor = (channel) => {
+    switch(channel) {
+      case 'ViX': return 'bg-orange-100 text-orange-700 border-orange-200';
+      case 'TUDN': return 'bg-rose-100 text-rose-800 border-rose-200';
+      case 'TV Azteca': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+      default: return 'bg-slate-100 text-slate-800 border-slate-200';
+    }
+  };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="text-center bg-white p-8 rounded-2xl shadow-sm border border-slate-100 max-w-sm w-full">
+           <div className="animate-spin w-10 h-10 border-4 border-teal-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+           <p className="text-slate-600 font-medium">Conectando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-800 pb-24">
+      <header className="bg-gradient-to-r from-emerald-800 to-teal-900 text-white py-6 px-4 shadow-md sticky top-0 z-20">
+        <div className="max-w-6xl mx-auto flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight flex items-center gap-2">
+              <Trophy className="w-6 h-6 md:w-8 md:h-8" />
+              Quiniela Mundial
+            </h1>
+            {activeTab === 'partidos' && (
+              <button onClick={() => setShowFilters(!showFilters)} className="md:hidden bg-white/20 p-2 rounded-lg backdrop-blur-sm flex items-center gap-2 text-sm font-semibold">
+                <Filter className="w-4 h-4" /> Filtros
+              </button>
+            )}
+          </div>
+          <p className="text-emerald-100 text-xs md:text-sm">
+            Fase de Grupos y Eliminatorias • Sedes Oficiales 🏟️
+          </p>
+        </div>
+      </header>
+
+      <main className="max-w-6xl mx-auto px-4 py-6">
+        
+        {/* === VISTA DE PARTIDOS === */}
+        {activeTab === 'partidos' && (
+          <>
+            <section className={`bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-100 mb-6 transition-all duration-300 ${showFilters ? 'block' : 'hidden md:block'}`}>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase ml-1">Fecha</label>
+                  <select value={filterDate} onChange={(e) => setFilterDate(e.target.value)} className="w-full p-3.5 md:p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500 text-sm md:text-base cursor-pointer appearance-none">
+                    <option value="">Todas</option>
+                    {uniqueDates.map(date => <option key={date} value={date}>{date}</option>)}
+                  </select>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase ml-1">Grupo</label>
+                  <select value={filterGroup} onChange={(e) => setFilterGroup(e.target.value)} className="w-full p-3.5 md:p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500 text-sm md:text-base cursor-pointer appearance-none">
+                    <option value="">Todos</option>
+                    {uniqueGroups.map(g => <option key={g} value={g}>Grupo {g}</option>)}
+                  </select>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase ml-1">Equipo</label>
+                  <select value={filterTeam} onChange={(e) => setFilterTeam(e.target.value)} className="w-full p-3.5 md:p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500 text-sm md:text-base cursor-pointer appearance-none">
+                    <option value="">Todos</option>
+                    {uniqueTeams.map(t => <option key={t} value={t}>{TEAM_FLAGS[t] || "🏴"} {t}</option>)}
+                  </select>
+                </div>
+                <div className="flex flex-col gap-1 justify-end mt-2 md:mt-0">
+                   <button onClick={clearFilters} disabled={!filterDate && !filterGroup && !filterTeam} className="w-full p-3.5 md:p-3 flex items-center justify-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl font-bold transition-colors disabled:opacity-0 disabled:pointer-events-none">
+                     <X className="w-5 h-5" /> Limpiar Filtros
+                   </button>
+                </div>
+              </div>
+            </section>
+
+            <div className="mb-4 text-slate-500 text-sm font-medium px-1">
+              {filteredMatches.length} {filteredMatches.length === 1 ? 'partido' : 'partidos'}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+              {filteredMatches.map(match => (
+                <div key={match.id} className="bg-white rounded-2xl p-4 md:p-5 shadow-sm border border-slate-200 flex flex-col relative overflow-hidden">
+                  
+                  {/* Cabecera Tarjeta: Fecha y Sede */}
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-1.5 text-xs md:text-sm text-slate-700 font-bold">
+                        <Calendar className="w-4 h-4 text-teal-600" /> {match.date} • {match.time}
+                      </div>
+                      <div className="flex items-center gap-1.5 text-[11px] md:text-xs text-slate-500 font-medium ml-0.5">
+                        <MapPin className="w-3.5 h-3.5 text-rose-500" /> {match.venue}
+                      </div>
+                    </div>
+                    <div className="bg-slate-100 text-slate-600 px-2 py-1 rounded-md text-[10px] md:text-xs font-bold uppercase mt-1">
+                      Grupo {match.group}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between bg-slate-50 p-3 md:p-4 rounded-xl border border-slate-100">
+                    <div className="flex flex-col md:flex-row items-center gap-2 w-[35%] text-center md:text-right md:justify-end">
+                      <span className="font-bold text-slate-800 text-xs md:text-sm leading-tight hidden md:block">{match.team1}</span>
+                      <span className="text-3xl md:text-4xl drop-shadow-sm" title={match.team1}>{TEAM_FLAGS[match.team1] || "🏴"}</span>
+                      <span className="font-bold text-slate-800 text-[10px] leading-tight block md:hidden">{match.team1}</span>
+                    </div>
+                    
+                    <div className="w-[30%] flex justify-center items-center gap-2 md:gap-3">
+                      <input 
+                        type="text" inputMode="numeric" maxLength="2"
+                        value={scores[match.id]?.score1 !== undefined ? scores[match.id].score1 : ''}
+                        onChange={(e) => handleScoreChange(match.id, 'score1', e.target.value)}
+                        className="w-10 h-10 md:w-12 md:h-12 text-center text-xl md:text-2xl font-black bg-white border-2 border-slate-300 rounded-lg focus:border-teal-500 focus:ring-0 outline-none transition-colors"
+                      />
+                      <span className="text-slate-400 font-black">-</span>
+                      <input 
+                        type="text" inputMode="numeric" maxLength="2"
+                        value={scores[match.id]?.score2 !== undefined ? scores[match.id].score2 : ''}
+                        onChange={(e) => handleScoreChange(match.id, 'score2', e.target.value)}
+                        className="w-10 h-10 md:w-12 md:h-12 text-center text-xl md:text-2xl font-black bg-white border-2 border-slate-300 rounded-lg focus:border-teal-500 focus:ring-0 outline-none transition-colors"
+                      />
+                    </div>
+
+                    <div className="flex flex-col md:flex-row items-center gap-2 w-[35%] text-center md:text-left md:justify-start">
+                      <span className="text-3xl md:text-4xl drop-shadow-sm" title={match.team2}>{TEAM_FLAGS[match.team2] || "🏴"}</span>
+                      <span className="font-bold text-slate-800 text-xs md:text-sm leading-tight hidden md:block">{match.team2}</span>
+                      <span className="font-bold text-slate-800 text-[10px] leading-tight block md:hidden">{match.team2}</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex items-center justify-between">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {match.tv.map((channel, i) => (
+                        <span key={i} className={`text-[9px] md:text-[10px] font-bold px-1.5 py-0.5 rounded-md border ${getTvBadgeColor(channel)}`}>
+                          {channel}
+                        </span>
+                      ))}
+                    </div>
+                    <button 
+                      onClick={() => saveScore(match.id)}
+                      disabled={scores[match.id]?.score1 === undefined || scores[match.id]?.score1 === '' || scores[match.id]?.score2 === undefined || scores[match.id]?.score2 === '' || savingId === match.id}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-sm font-bold transition-all ${savedId === match.id ? 'bg-green-100 text-green-700' : 'bg-teal-600 text-white hover:bg-teal-700 disabled:bg-slate-200 disabled:text-slate-400'}`}
+                    >
+                      {savingId === match.id ? <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" /> : savedId === match.id ? <><CheckCircle2 className="w-4 h-4" /> Listo</> : <><Save className="w-4 h-4" /> Guardar</>}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* === VISTA DE TABLA DE POSICIONES === */}
+        {activeTab === 'posiciones' && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {Object.keys(standings).map(groupName => (
+              <div key={groupName} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 font-black text-slate-700">
+                  Grupo {groupName}
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm text-left">
+                    <thead className="text-xs text-slate-500 uppercase bg-white border-b border-slate-100">
+                      <tr>
+                        <th className="px-4 py-3 font-bold">Equipo</th>
+                        <th className="px-2 py-3 text-center">PJ</th>
+                        <th className="px-2 py-3 text-center hidden sm:table-cell">G</th>
+                        <th className="px-2 py-3 text-center hidden sm:table-cell">E</th>
+                        <th className="px-2 py-3 text-center hidden sm:table-cell">P</th>
+                        <th className="px-2 py-3 text-center text-slate-400">DG</th>
+                        <th className="px-4 py-3 text-center text-teal-700 font-black">PTS</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {standings[groupName].map((teamData, index) => (
+                        <tr key={teamData.team} className={`border-b border-slate-50 hover:bg-slate-50 ${index < 2 ? 'bg-teal-50/30' : index === 2 ? 'bg-amber-50/20' : ''}`}>
+                          <td className="px-4 py-3 font-bold text-slate-800 flex items-center gap-2">
+                            <span className="text-slate-400 font-normal w-3">{index + 1}</span>
+                            <span className="text-xl" title={teamData.team}>{TEAM_FLAGS[teamData.team] || "🏴"}</span>
+                            <span className="truncate max-w-[100px] sm:max-w-full">{teamData.team}</span>
+                          </td>
+                          <td className="px-2 py-3 text-center text-slate-600">{teamData.pj}</td>
+                          <td className="px-2 py-3 text-center text-slate-600 hidden sm:table-cell">{teamData.pg}</td>
+                          <td className="px-2 py-3 text-center text-slate-600 hidden sm:table-cell">{teamData.pe}</td>
+                          <td className="px-2 py-3 text-center text-slate-600 hidden sm:table-cell">{teamData.pp}</td>
+                          <td className="px-2 py-3 text-center text-slate-500 font-medium">{teamData.dif > 0 ? `+${teamData.dif}` : teamData.dif}</td>
+                          <td className="px-4 py-3 text-center font-black text-teal-700 text-base">{teamData.pts}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* === VISTA DE ELIMINATORIAS (DIECISEISAVOS) === */}
+        {activeTab === 'eliminatorias' && (
+          <div className="flex flex-col gap-6">
+            
+            <div className="bg-amber-50 rounded-2xl p-4 border border-amber-200 shadow-sm">
+              <div className="flex items-center gap-2 text-amber-800 font-bold mb-3">
+                <Info className="w-5 h-5" />
+                Los 8 Mejores Terceros (Clasifican a 16vos)
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                {bestThirds.map((teamData, idx) => (
+                  <div key={idx} className={`p-2 rounded-lg text-sm flex items-center justify-between border ${idx < 8 ? 'bg-white border-amber-300 font-bold text-slate-800' : 'bg-amber-50/50 border-amber-200/50 text-slate-400 opacity-60'}`}>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-slate-400 w-2">{idx+1}</span>
+                      <span>{TEAM_FLAGS[teamData.team] || "🏴"}</span>
+                      <span className="truncate max-w-[60px]">{teamData.team}</span>
+                    </div>
+                    <span className="text-[10px] bg-slate-100 px-1.5 rounded">{teamData.pts} pts</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+              {ROUND_OF_32.map((match) => {
+                const team1Data = getTeamFromStandings(match.group1, match.pos1);
+                const t1Name = team1Data ? team1Data.team : match.label1;
+                const t1Flag = team1Data ? (TEAM_FLAGS[t1Name] || "🏴") : "❔";
+                const isT1Resolved = !!team1Data;
+
+                const team2Data = getTeamFromStandings(match.group2, match.pos2);
+                const t2Name = team2Data ? team2Data.team : match.label2;
+                const t2Flag = team2Data ? (TEAM_FLAGS[t2Name] || "🏴") : "❔";
+                const isT2Resolved = !!team2Data;
+
+                return (
+                  <div key={match.id} className="bg-white rounded-2xl p-4 md:p-5 shadow-sm border border-slate-200 flex flex-col relative overflow-hidden">
+                    <div className="flex justify-between items-start mb-4 border-b border-slate-100 pb-3">
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-1.5 text-xs md:text-sm text-slate-800 font-black">
+                          <Swords className="w-4 h-4 text-rose-600" />
+                          Dieciseisavos de Final
+                        </div>
+                        <div className="flex items-center gap-1.5 text-[11px] md:text-xs text-slate-500 font-medium ml-0.5">
+                          <MapPin className="w-3.5 h-3.5 text-rose-500" /> {match.venue}
+                        </div>
+                      </div>
+                      <div className="bg-rose-50 text-rose-700 px-2 py-1 rounded-md text-[10px] md:text-xs font-bold uppercase mt-1">
+                        Partido {match.matchTitle.replace('P','')}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between bg-slate-50 p-3 md:p-4 rounded-xl border border-slate-100">
+                      <div className="flex flex-col md:flex-row items-center gap-2 w-[35%] text-center md:text-right md:justify-end">
+                        <div className="hidden md:flex flex-col items-end">
+                          <span className={`font-bold text-xs md:text-sm leading-tight ${isT1Resolved ? 'text-slate-800' : 'text-slate-400'}`}>{t1Name}</span>
+                          {isT1Resolved && <span className="text-[9px] text-slate-400 uppercase tracking-widest">{match.label1}</span>}
+                        </div>
+                        <span className="text-3xl md:text-4xl drop-shadow-sm opacity-90">{t1Flag}</span>
+                        <div className="flex md:hidden flex-col items-center">
+                           <span className={`font-bold text-[10px] leading-tight ${isT1Resolved ? 'text-slate-800' : 'text-slate-400'}`}>{t1Name}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="w-[30%] flex justify-center items-center gap-2 md:gap-3">
+                        <input 
+                          type="text" inputMode="numeric" maxLength="2"
+                          value={scores[match.id]?.score1 !== undefined ? scores[match.id].score1 : ''}
+                          onChange={(e) => handleScoreChange(match.id, 'score1', e.target.value)}
+                          className="w-10 h-10 md:w-12 md:h-12 text-center text-xl md:text-2xl font-black bg-white border-2 border-slate-300 rounded-lg focus:border-rose-400 focus:ring-0 outline-none transition-colors"
+                        />
+                        <span className="text-slate-400 font-black">-</span>
+                        <input 
+                          type="text" inputMode="numeric" maxLength="2"
+                          value={scores[match.id]?.score2 !== undefined ? scores[match.id].score2 : ''}
+                          onChange={(e) => handleScoreChange(match.id, 'score2', e.target.value)}
+                          className="w-10 h-10 md:w-12 md:h-12 text-center text-xl md:text-2xl font-black bg-white border-2 border-slate-300 rounded-lg focus:border-rose-400 focus:ring-0 outline-none transition-colors"
+                        />
+                      </div>
+
+                      <div className="flex flex-col md:flex-row items-center gap-2 w-[35%] text-center md:text-left md:justify-start">
+                        <span className="text-3xl md:text-4xl drop-shadow-sm opacity-90">{t2Flag}</span>
+                        <div className="hidden md:flex flex-col items-start">
+                           <span className={`font-bold text-xs md:text-sm leading-tight ${isT2Resolved ? 'text-slate-800' : 'text-slate-400'}`}>{t2Name}</span>
+                           {isT2Resolved && <span className="text-[9px] text-slate-400 uppercase tracking-widest">{match.label2}</span>}
+                        </div>
+                         <div className="flex md:hidden flex-col items-center">
+                           <span className={`font-bold text-[10px] leading-tight ${isT2Resolved ? 'text-slate-800' : 'text-slate-400'}`}>{t2Name}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex justify-end">
+                      <button 
+                        onClick={() => saveScore(match.id)}
+                        disabled={scores[match.id]?.score1 === undefined || scores[match.id]?.score1 === '' || scores[match.id]?.score2 === undefined || scores[match.id]?.score2 === '' || savingId === match.id}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-sm font-bold transition-all ${savedId === match.id ? 'bg-green-100 text-green-700' : 'bg-rose-600 text-white hover:bg-rose-700 disabled:bg-slate-200 disabled:text-slate-400'}`}
+                      >
+                        {savingId === match.id ? <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" /> : savedId === match.id ? <><CheckCircle2 className="w-4 h-4" /> Listo</> : <><Save className="w-4 h-4" /> Guardar</>}
+                      </button>
+                    </div>
+
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+      </main>
+
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around pb-safe pt-2 px-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-30">
+        <button onClick={() => setActiveTab('partidos')} className={`flex flex-col items-center p-2 min-w-[80px] rounded-xl transition-colors ${activeTab === 'partidos' ? 'text-teal-600' : 'text-slate-400 hover:bg-slate-50'}`}>
+          <Calendar className="w-6 h-6 mb-1" />
+          <span className="text-xs font-bold">Grupos</span>
+        </button>
+        <button onClick={() => setActiveTab('posiciones')} className={`flex flex-col items-center p-2 min-w-[80px] rounded-xl transition-colors ${activeTab === 'posiciones' ? 'text-teal-600' : 'text-slate-400 hover:bg-slate-50'}`}>
+          <ListOrdered className="w-6 h-6 mb-1" />
+          <span className="text-xs font-bold">Tablas</span>
+        </button>
+        <button onClick={() => setActiveTab('eliminatorias')} className={`flex flex-col items-center p-2 min-w-[80px] rounded-xl transition-colors ${activeTab === 'eliminatorias' ? 'text-rose-600' : 'text-slate-400 hover:bg-slate-50'}`}>
+          <Swords className="w-6 h-6 mb-1" />
+          <span className="text-xs font-bold">16vos</span>
+        </button>
+      </nav>
+
+    </div>
+  );
+}
