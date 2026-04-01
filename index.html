@@ -231,6 +231,14 @@
             const month = parts[2].toLowerCase() === "junio" ? 5 : 6;
             return new Date(2026, month, day - 1, 23, 59, 59);
         };
+
+        const formatLockDate = (dateStr) => {
+            const d = parseLockDate(dateStr);
+            const day = d.getDate();
+            const month = d.getMonth() === 5 ? 'junio' : 'julio';
+            return `Cierra: ${day} de ${month}, 23:59 hrs`;
+        };
+
         const isMatchLocked = (dateStr) => {
             return new Date() > parseLockDate(dateStr);
         };
@@ -478,11 +486,21 @@
 
             // --- UI HELPERS ---
             const renderMatchCard = (match, stageTitle, bg, color, focus, btn) => {
-                const tInfo = resolvedTeams[match.id] || {};
-                const t1Name = tInfo.team1 || match.label1 || "TBD";
-                const t2Name = tInfo.team2 || match.label2 || "TBD";
-                const isT1Resolved = tInfo.t1Resolved;
-                const isT2Resolved = tInfo.t2Resolved;
+                const isGroupMatch = match.id.startsWith('m');
+                let t1Name, t2Name, isT1Resolved, isT2Resolved;
+
+                if (isGroupMatch) {
+                    t1Name = match.team1;
+                    t2Name = match.team2;
+                    isT1Resolved = true;
+                    isT2Resolved = true;
+                } else {
+                    const tInfo = resolvedTeams[match.id] || {};
+                    t1Name = tInfo.team1 || match.label1 || "TBD";
+                    t2Name = tInfo.team2 || match.label2 || "TBD";
+                    isT1Resolved = tInfo.t1Resolved;
+                    isT2Resolved = tInfo.t2Resolved;
+                }
 
                 const t1Flag = isT1Resolved ? (TEAM_FLAGS[t1Name] || "🏴") : "❔";
                 const t2Flag = isT2Resolved ? (TEAM_FLAGS[t2Name] || "🏴") : "❔";
@@ -505,6 +523,11 @@
                                 <div className="flex items-center gap-1.5 text-[11px] md:text-xs text-slate-500 font-medium ml-0.5">
                                     {match.date ? `${match.date} • ${match.time}` : 'Eliminatorias'} • <MapPin className="w-3 h-3 text-rose-500" /> {match.venue}
                                 </div>
+                                {activeTab === 'pronosticos' && !lockedUI && (
+                                    <div className="flex items-center gap-1 text-[10px] text-amber-600 font-bold ml-0.5 mt-0.5">
+                                        ⏳ {formatLockDate(match.date)}
+                                    </div>
+                                )}
                             </div>
                             <div className={`${bg} ${color} px-2 py-1 rounded-md text-[10px] md:text-xs font-bold uppercase mt-1`}>
                                 {match.matchTitle || `Grupo ${match.group}`}
