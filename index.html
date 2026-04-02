@@ -480,9 +480,30 @@
                 }
             };
 
+            // --- FILTROS Y DATOS ÚNICOS ---
+            const uniqueDates = useMemo(() => [...new Set(MATCHES_DATA.map(m => m.date))], []);
+            const uniqueGroups = useMemo(() => [...new Set(MATCHES_DATA.map(m => m.group))].sort(), []);
+            const uniqueTeams = useMemo(() => {
+                const teams = new Set();
+                MATCHES_DATA.forEach(m => { teams.add(m.team1); teams.add(m.team2); });
+                return [...teams].sort();
+            }, []);
+
+            // Filtro aplicado solo a Fase de Grupos
+            const filteredMatches = useMemo(() => {
+                return MATCHES_DATA.filter(match => {
+                    const matchDate = filterDate ? match.date === filterDate : true;
+                    const matchGroup = filterGroup ? match.group === filterGroup : true;
+                    const matchTeam = filterTeam ? (match.team1 === filterTeam || match.team2 === filterTeam) : true;
+                    return matchDate && matchGroup && matchTeam;
+                });
+            }, [filterDate, filterGroup, filterTeam]);
+
+            const clearFilters = () => { setFilterDate(""); setFilterGroup(""); setFilterTeam(""); };
+            const hasFilters = filterDate !== "" || filterGroup !== "" || filterTeam !== "";
+
             // --- UI HELPERS ---
             const renderMatchCard = (match, stageTitle, bg, color, focus, btn) => {
-                // AQUI SE CORRIGE LO DE "TBD" Y LAS BANDERAS EN GRUPOS
                 const isGroupMatch = match.id.startsWith('m');
                 let t1Name, t2Name, isT1Resolved, isT2Resolved;
 
@@ -585,10 +606,6 @@
                 );
             };
 
-            const filteredMatches = useMemo(() => MATCHES_DATA.filter(match => (filterDate ? match.date === filterDate : true) && (filterGroup ? match.group === filterGroup : true)), [filterDate, filterGroup]);
-            const uniqueDates = useMemo(() => [...new Set(MATCHES_DATA.map(m => m.date))], []);
-            const uniqueGroups = useMemo(() => [...new Set(MATCHES_DATA.map(m => m.group))].sort(), []);
-            const clearFilters = () => { setFilterDate(""); setFilterGroup(""); setFilterTeam(""); };
             const getTvBadgeColor = (channel) => {
                 switch(channel) {
                     case 'ViX': return 'bg-orange-100 text-orange-700 border-orange-200';
@@ -622,6 +639,11 @@
                                     <UsersIcon className="w-6 h-6 md:w-8 md:h-8" />
                                     Quiniela en Vivo
                                 </h1>
+                                {(activeTab === 'pronosticos' || activeTab === 'reales') && (
+                                    <button onClick={() => setShowFilters(!showFilters)} className="md:hidden bg-white/20 p-2 rounded-lg backdrop-blur-sm flex items-center gap-2 text-sm font-semibold">
+                                        <Filter className="w-4 h-4" /> Filtros
+                                    </button>
+                                )}
                             </div>
                             <p className="text-emerald-100 text-xs md:text-sm">
                                 {isFirebaseConfigured ? `Hola, ${usersDb?.[user?.uid]?.name || 'Jugador'} 🟢` : "🟡 Conectando con Firebase..."}
@@ -648,15 +670,59 @@
                         {/* === VISTA PARTIDOS (Pronósticos y Reales) === */}
                         {(activeTab === 'pronosticos' || activeTab === 'reales') && (
                             <div className="flex flex-col gap-8">
+                                {/* SECCIÓN DE FILTROS RESTAURADA */}
+                                <section className={`bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-100 mb-2 transition-all duration-300 ${showFilters ? 'block' : 'hidden md:block'}`}>
+                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                        <div className="flex flex-col gap-1">
+                                            <label className="text-xs font-bold text-slate-500 uppercase ml-1">Fecha</label>
+                                            <select value={filterDate} onChange={(e) => setFilterDate(e.target.value)} className="w-full p-3.5 md:p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500 text-sm md:text-base cursor-pointer appearance-none">
+                                                <option value="">Todas</option>
+                                                {uniqueDates.map(date => <option key={date} value={date}>{date}</option>)}
+                                            </select>
+                                        </div>
+                                        <div className="flex flex-col gap-1">
+                                            <label className="text-xs font-bold text-slate-500 uppercase ml-1">Grupo</label>
+                                            <select value={filterGroup} onChange={(e) => setFilterGroup(e.target.value)} className="w-full p-3.5 md:p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500 text-sm md:text-base cursor-pointer appearance-none">
+                                                <option value="">Todos</option>
+                                                {uniqueGroups.map(g => <option key={g} value={g}>Grupo {g}</option>)}
+                                            </select>
+                                        </div>
+                                        <div className="flex flex-col gap-1">
+                                            <label className="text-xs font-bold text-slate-500 uppercase ml-1">Equipo</label>
+                                            <select value={filterTeam} onChange={(e) => setFilterTeam(e.target.value)} className="w-full p-3.5 md:p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500 text-sm md:text-base cursor-pointer appearance-none">
+                                                <option value="">Todos</option>
+                                                {uniqueTeams.map(t => <option key={t} value={t}>{TEAM_FLAGS[t] || "🏴"} {t}</option>)}
+                                            </select>
+                                        </div>
+                                        <div className="flex flex-col gap-1 justify-end mt-2 md:mt-0">
+                                            <button onClick={clearFilters} disabled={!hasFilters} className="w-full p-3.5 md:p-3 flex items-center justify-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl font-bold transition-colors disabled:opacity-0 disabled:pointer-events-none">
+                                                <X className="w-5 h-5" /> Limpiar Filtros
+                                            </button>
+                                        </div>
+                                    </div>
+                                </section>
+
                                 <div>
                                     <div className="flex items-center gap-2 font-black text-xl md:text-2xl mb-4 text-slate-800">
                                         <Calendar className="w-6 h-6" /> Fase de Grupos
                                     </div>
+                                    <div className="mb-4 text-slate-500 text-sm font-medium px-1">
+                                        {filteredMatches.length} {filteredMatches.length === 1 ? 'partido' : 'partidos'}
+                                    </div>
                                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                                         {filteredMatches.map(match => renderMatchCard(match, `Fase de Grupos`, 'bg-slate-100', 'text-slate-600', 'focus:border-teal-500', 'bg-teal-600'))}
                                     </div>
+                                    {filteredMatches.length === 0 && (
+                                        <div className="text-center py-12 bg-white rounded-2xl border border-slate-100 shadow-sm mt-4">
+                                            <Filter className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+                                            <h3 className="text-lg font-bold text-slate-700">No hay partidos</h3>
+                                            <p className="text-slate-500 text-sm mt-2">Intenta cambiar los filtros de arriba.</p>
+                                        </div>
+                                    )}
                                 </div>
-                                {KNOCKOUT_ROUNDS.map((round, idx) => (
+                                
+                                {/* Ocultar rondas eliminatorias si el usuario está buscando algo en específico */}
+                                {!hasFilters && KNOCKOUT_ROUNDS.map((round, idx) => (
                                     <div key={idx}>
                                         <div className={`flex items-center gap-2 font-black text-xl md:text-2xl mb-4 ${round.color}`}>
                                             <Swords className="w-6 h-6" /> {round.title}
