@@ -33,7 +33,11 @@
 <body>
     <div id="root">
         <div style="display:flex; justify-content:center; align-items:center; height:100vh; font-family:sans-serif; color:#4a5568;">
-            Cargando entorno...
+            <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+                <div style="width:32px; height:32px; border:4px solid #0d9488; border-top-color:transparent; border-radius:50%; animation:spin 1s linear infinite;"></div>
+                <p>Cargando Quiniela...</p>
+            </div>
+            <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
         </div>
     </div>
 
@@ -60,15 +64,16 @@
         const X = ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>;
         const Save = ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>;
         const CheckCircle2 = ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="m9 12 2 2 4-4"></path></svg>;
-        const ListOrdered = ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><line x1="10" y1="6" x2="21" y2="6"></line><line x1="10" y1="12" x2="21" y2="12"></line><line x1="10" y1="18" x2="21" y2="18"></line><path d="M4 6h1v4"></path><path d="M4 10h2"></path><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"></path></svg>;
         const Swords = ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"></polyline><line x1="13" y1="19" x2="19" y2="13"></line><line x1="16" y1="16" x2="20" y2="20"></line><line x1="19" y1="21" x2="21" y2="19"></line><polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"></polyline><line x1="5" y1="14" x2="9" y2="10"></line><line x1="4" y1="16" x2="8" y2="20"></line><line x1="3" y1="19" x2="5" y2="21"></line></svg>;
         const Info = ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>;
-        const UsersIcon = ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>;
+        const Users = ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>;
         const BarChart = ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>;
         const Lock = ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>;
+        const Unlock = ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>;
         const Edit = ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>;
 
         // --- DATOS ESTÁTICOS ---
+        // (Mantenemos los Emojis para los Dropdowns porque no aceptan imágenes)
         const TEAM_FLAGS = {
             "MÉXICO": "🇲🇽", "SUDÁFRICA": "🇿🇦", "COREA DEL SUR": "🇰🇷", "REP. CHECA": "🇨🇿",
             "CANADÁ": "🇨🇦", "BOSNIA": "🇧🇦", "ESTADOS UNIDOS": "🇺🇸", "PARAGUAY": "🇵🇾",
@@ -81,11 +86,84 @@
             "FRANCIA": "🇫🇷", "SENEGAL": "🇸🇳", "IRAK": "🇮🇶", "NORUEGA": "🇳🇴",
             "ARGENTINA": "🇦🇷", "ARGELIA": "🇩🇿", "AUSTRIA": "🇦🇹", "JORDANIA": "🇯🇴",
             "PORTUGAL": "🇵🇹", "RD CONGO": "🇨🇩", "INGLATERRA": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "CROACIA": "🇭🇷",
-            "GHANA": "🇬🇭", "PANAMÁ": "🇵🇦", "UZBEKISTÁN": "🇺🇿", "COLOMBIA": "🇨🇴"
+            "GHANA": "🇬🇭", "PANAMÁ": "🇵🇦", "UZBEKISTÁN": "🇺🇿", "COLOMBIA": "🇨🇴",
+            "IRLANDA": "🇮🇪", "COSTA RICA": "🇨🇷", "ISLANDIA": "🇮🇸", "FINLANDIA": "🇫🇮",
+            "GEORGIA": "🇬🇪", "RUMANIA": "🇷🇴", "GALES": "🏴󠁧󠁢󠁷󠁬󠁳󠁿", "POLONIA": "🇵🇱",
+            "NIGERIA": "🇳🇬", "SERBIA": "🇷🇸", "ESLOVENIA": "🇸🇮", "CHIPRE": "🇨🇾",
+            "HUNGRÍA": "🇭🇺", "ARMENIA": "🇦🇲", "KAZAJISTÁN": "🇰🇿", "CHILE": "🇨🇱",
+            "BOLIVIA": "🇧🇴", "MOLDAVIA": "🇲🇩", "CATAR": "🇶🇦"
+        };
+
+        // --- CÓDIGOS DE BANDERAS PARA IMÁGENES (Resuelve el problema de Windows/Móviles) ---
+        const TEAM_CODES = {
+            "MÉXICO": "mx", "SUDÁFRICA": "za", "COREA DEL SUR": "kr", "REP. CHECA": "cz",
+            "CANADÁ": "ca", "BOSNIA": "ba", "ESTADOS UNIDOS": "us", "PARAGUAY": "py",
+            "QATAR": "qa", "SUIZA": "ch", "BRASIL": "br", "MARRUECOS": "ma",
+            "HAITÍ": "ht", "ESCOCIA": "gb-sct", "AUSTRALIA": "au", "TURQUÍA": "tr",
+            "ALEMANIA": "de", "CURAZAO": "cw", "PAÍSES BAJOS": "nl", "JAPÓN": "jp",
+            "COSTA DE MARFIL": "ci", "ECUADOR": "ec", "SUECIA": "se", "TÚNEZ": "tn",
+            "ESPAÑA": "es", "CABO VERDE": "cv", "BÉLGICA": "be", "EGIPTO": "eg",
+            "ARABIA SAUDITA": "sa", "URUGUAY": "uy", "IRÁN": "ir", "NUEVA ZELANDA": "nz",
+            "FRANCIA": "fr", "SENEGAL": "sn", "IRAK": "iq", "NORUEGA": "no",
+            "ARGENTINA": "ar", "ARGELIA": "dz", "AUSTRIA": "at", "JORDANIA": "jo",
+            "PORTUGAL": "pt", "RD CONGO": "cd", "INGLATERRA": "gb-eng", "CROACIA": "hr",
+            "GHANA": "gh", "PANAMÁ": "pa", "UZBEKISTÁN": "uz", "COLOMBIA": "co",
+            "IRLANDA": "ie", "COSTA RICA": "cr", "ISLANDIA": "is", "FINLANDIA": "fi",
+            "GEORGIA": "ge", "RUMANIA": "ro", "GALES": "gb-wls", "POLONIA": "pl",
+            "NIGERIA": "ng", "SERBIA": "rs", "ESLOVENIA": "si", "CHIPRE": "cy",
+            "HUNGRÍA": "hu", "ARMENIA": "am", "KAZAJISTÁN": "kz", "CHILE": "cl",
+            "BOLIVIA": "bo", "MOLDAVIA": "md", "CATAR": "qa"
+        };
+
+        const renderFlag = (teamName, isResolved, sizeClass = "w-10 h-7 md:w-14 md:h-10") => {
+            if (!isResolved) return <div className={`${sizeClass} flex items-center justify-center bg-slate-200 text-slate-400 rounded-md shadow-inner text-xs md:text-sm font-black`}>?</div>;
+            const code = TEAM_CODES[teamName?.trim().toUpperCase()];
+            if (!code) return <div className={`${sizeClass} flex items-center justify-center bg-slate-800 text-white rounded-md shadow-inner text-xs md:text-sm`}>🏴</div>;
+            return <img src={`https://flagcdn.com/w80/${code}.png`} alt={teamName} className={`${sizeClass} rounded-md shadow-sm object-cover border border-slate-200`} />;
         };
 
         const ABIERTA = ["ViX", "TUDN", "TV Azteca"];
         const STREAMING = ["ViX"];
+
+        // PERIODO DE PRUEBA: AMISTOSOS
+        const FRIENDLY_MATCHES = [
+            { id: "a1", date: "28 de mayo", time: "12:45 p. m.", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "IRLANDA", team2: "CATAR", venue: "Aviva Stadium, Dublín" },
+            { id: "a2", date: "29 de mayo", time: "Por anunciar", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "COLOMBIA", team2: "COSTA RICA", venue: "Estadio El Campín, Bogotá" },
+            { id: "a3", date: "30 de mayo", time: "6:00 a. m.", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "ESCOCIA", team2: "CURAZAO", venue: "Hampden Park, Glasgow" },
+            { id: "a4", date: "30 de mayo", time: "7:00 p. m.", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "MÉXICO", team2: "AUSTRALIA", venue: "Rose Bowl, Pasadena" },
+            { id: "a5", date: "31 de mayo", time: "4:25 a. m.", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "JAPÓN", team2: "ISLANDIA", venue: "Japan National Stadium, Tokio" },
+            { id: "a6", date: "31 de mayo", time: "7:00 a. m.", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "SUIZA", team2: "JORDANIA", venue: "Kybunpark, St. Gallen" },
+            { id: "a7", date: "31 de mayo", time: "Por anunciar", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "BRASIL", team2: "PANAMÁ", venue: "Estadio Maracaná, Río de Janeiro" },
+            { id: "a8", date: "31 de mayo", time: "12:45 p. m.", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "ALEMANIA", team2: "FINLANDIA", venue: "MEWA Arena, Mainz" },
+            { id: "a9", date: "31 de mayo", time: "1:30 p. m.", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "ESTADOS UNIDOS", team2: "SENEGAL", venue: "Bank of America Stadium" },
+            { id: "a10", date: "1 de junio", time: "11:00 a. m.", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "NORUEGA", team2: "SUECIA", venue: "Ullevaal Stadion, Oslo" },
+            { id: "a11", date: "1 de junio", time: "12:45 p. m.", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "AUSTRIA", team2: "TÚNEZ", venue: "Ernst-Happel-Stadion, Viena" },
+            { id: "a12", date: "1 de junio", time: "2:00 p. m.", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "GEORGIA", team2: "RUMANIA", venue: "Mikheil Meskhi Stadioni, Tbilisi" },
+            { id: "a13", date: "1 de junio", time: "7:00 p. m.", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "CANADÁ", team2: "UZBEKISTÁN", venue: "Commonwealth Stadium, Edmonton" },
+            { id: "a14", date: "2 de junio", time: "10:00 a. m.", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "CROACIA", team2: "BÉLGICA", venue: "Stadion HNK Rijeka, Rijeka" },
+            { id: "a15", date: "2 de junio", time: "Por anunciar", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "GALES", team2: "GHANA", venue: "Cardiff City Stadium, Cardiff" },
+            { id: "a16", date: "3 de junio", time: "12:45 p. m.", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "PAÍSES BAJOS", team2: "ARGELIA", venue: "De Kuip, Róterdam" },
+            { id: "a17", date: "3 de junio", time: "12:45 p. m.", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "POLONIA", team2: "NIGERIA", venue: "PGE Narodowy, Varsovia" },
+            { id: "a18", date: "4 de junio", time: "Por anunciar", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "MÉXICO", team2: "SERBIA", venue: "TBC" },
+            { id: "a19", date: "4 de junio", time: "Por anunciar", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "ESLOVENIA", team2: "CHIPRE", venue: "Stadion Stozice, Liubliana" },
+            { id: "a20", date: "4 de junio", time: "1:10 p. m.", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "FRANCIA", team2: "COSTA DE MARFIL", venue: "Stade de la Beaujoire, Nantes" },
+            { id: "a21", date: "5 de junio", time: "11:45 a. m.", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "HUNGRÍA", team2: "FINLANDIA", venue: "Puskás Aréna, Budapest" },
+            { id: "a22", date: "5 de junio", time: "5:30 p. m.", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "CANADÁ", team2: "IRLANDA", venue: "Stade Saputo, Montreal" },
+            { id: "a23", date: "6 de junio", time: "7:00 a. m.", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "BÉLGICA", team2: "TÚNEZ", venue: "TBC" },
+            { id: "a24", date: "6 de junio", time: "Por anunciar", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "ARMENIA", team2: "KAZAJISTÁN", venue: "Estadio Sargsyan, Ereván" },
+            { id: "a25", date: "6 de junio", time: "Por anunciar", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "BRASIL", team2: "EGIPTO", venue: "Huntington Bank Field, Cleveland" },
+            { id: "a26", date: "6 de junio", time: "Por anunciar", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "INGLATERRA", team2: "NUEVA ZELANDA", venue: "TBC" },
+            { id: "a27", date: "6 de junio", time: "Por anunciar", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "PORTUGAL", team2: "CHILE", venue: "Estádio do Jamor, Oeiras" },
+            { id: "a28", date: "6 de junio", time: "12:30 p. m.", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "ESTADOS UNIDOS", team2: "ALEMANIA", venue: "Soldier Field, Chicago" },
+            { id: "a29", date: "6 de junio", time: "2:00 p. m.", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "ESCOCIA", team2: "BOLIVIA", venue: "Red Bull Arena, Harrison" },
+            { id: "a30", date: "7 de junio", time: "Por anunciar", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "JORDANIA", team2: "COLOMBIA", venue: "TBC" },
+            { id: "a31", date: "7 de junio", time: "12:45 p. m.", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "CROACIA", team2: "ESLOVENIA", venue: "Stadion A. Herjavec, Varaždin" },
+            { id: "a32", date: "7 de junio", time: "1:00 p. m.", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "MARRUECOS", team2: "NORUEGA", venue: "Red Bull Arena, Harrison" },
+            { id: "a33", date: "9 de junio", time: "Por anunciar", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "ARMENIA", team2: "MOLDAVIA", venue: "Estadio Sargsyan, Ereván" },
+            { id: "a34", date: "9 de junio", time: "Por anunciar", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "KAZAJISTÁN", team2: "HUNGRÍA", venue: "Nagyerdei Stadium, Debrecen" },
+            { id: "a35", date: "10 de junio", time: "Por anunciar", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "INGLATERRA", team2: "COSTA RICA", venue: "TBC" },
+            { id: "a36", date: "10 de junio", time: "Por anunciar", matchday: 0, group: "Amistoso", matchTitle: "Amistoso", team1: "PORTUGAL", team2: "NIGERIA", venue: "TBC" }
+        ];
 
         // FASE DE GRUPOS
         const MATCHES_DATA = [
@@ -219,22 +297,26 @@
             { title: "Finales", matches: FINALS, color: "text-amber-600", bg: "bg-amber-50", focus: "focus:border-amber-400", btn: "bg-amber-600" }
         ];
 
-        const ALL_MATCHES = [...MATCHES_DATA, ...ROUND_OF_32, ...ROUND_OF_16, ...QUARTERFINALS, ...SEMIFINALS, ...FINALS];
+        const MUNDIAL_MATCHES = [...MATCHES_DATA, ...ROUND_OF_32, ...ROUND_OF_16, ...QUARTERFINALS, ...SEMIFINALS, ...FINALS];
+        const ALL_MATCHES = [...FRIENDLY_MATCHES, ...MUNDIAL_MATCHES];
 
         // Función para calcular las 23:59 hrs del día anterior
         const parseLockDate = (dateStr) => {
             if (!dateStr) return new Date(2026, 5, 27, 23, 59, 59); // 16vos
             const parts = dateStr.split(" ");
             const day = parseInt(parts[0], 10);
-            const month = parts[2].toLowerCase() === "junio" ? 5 : 6;
+            let month = 5; // default junio
+            if (parts[2].toLowerCase() === "mayo") month = 4;
+            else if (parts[2].toLowerCase() === "julio") month = 6;
             return new Date(2026, month, day - 1, 23, 59, 59);
         };
 
         const formatLockDate = (dateStr) => {
             const d = parseLockDate(dateStr);
             const day = d.getDate();
-            const month = d.getMonth() === 5 ? 'junio' : 'julio';
-            return `Cierra: ${day} de ${month}, 23:59 hrs`;
+            const monthNames = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+            const monthName = monthNames[d.getMonth()];
+            return `Cierra: ${day} de ${monthName}, 23:59 hrs`;
         };
 
         const isMatchLocked = (dateStr) => {
@@ -243,6 +325,13 @@
 
         function App() {
             const [user, setUser] = useState(null);
+            const [activeUid, setActiveUid] = useState(localStorage.getItem('quiniela_active_uid') || null);
+            const [isAdmin, setIsAdmin] = useState(false);
+            
+            // --- ESTADOS PARA MODAL DE ADMINISTRADOR ---
+            const [showAdminModal, setShowAdminModal] = useState(false);
+            const [adminPwdInput, setAdminPwdInput] = useState("");
+            const [adminPwdError, setAdminPwdError] = useState("");
             
             // Estados para DB separada (Usuarios, Apuestas y Realidad)
             const [usersDb, setUsersDb] = useState(null);
@@ -256,10 +345,10 @@
             const [nameInput, setNameInput] = useState("");
             
             const [activeTab, setActiveTab] = useState('pronosticos');
+            const [rankingFilter, setRankingFilter] = useState('mundial');
             const [filterDate, setFilterDate] = useState("");
             const [filterGroup, setFilterGroup] = useState("");
             const [filterTeam, setFilterTeam] = useState("");
-            const [showFilters, setShowFilters] = useState(false);
 
             // --- INICIALIZAR FIREBASE ---
             useEffect(() => {
@@ -278,8 +367,12 @@
 
                         onAuthStateChanged(auth, (currentUser) => {
                             setUser(currentUser);
+                            if (currentUser && !activeUid) {
+                                setActiveUid(currentUser.uid);
+                            }
                         });
                     } catch (error) {
+                        console.error("Firebase Error: ", error);
                         setIsFirebaseConfigured(false);
                     }
                 };
@@ -317,8 +410,10 @@
             // --- CÁLCULO DEL RANKING ---
             const rankingList = useMemo(() => {
                 const ranks = Object.values(usersDb || {}).map(u => ({ ...u, pts: 0, exactos: 0, aciertos: 0 }));
+                const matchesToCount = rankingFilter === 'mundial' ? MUNDIAL_MATCHES : FRIENDLY_MATCHES;
+
                 ranks.forEach(userRank => {
-                    ALL_MATCHES.forEach(m => {
+                    matchesToCount.forEach(m => {
                         const p = predictions[`${userRank.uid}_${m.id}`];
                         const r = realScores[m.id];
                         if (p && r && p.score1 !== '' && p.score2 !== '' && r.score1 !== undefined && r.score2 !== undefined && r.score1 !== '' && r.score2 !== '') {
@@ -336,7 +431,7 @@
                     });
                 });
                 return ranks.sort((a, b) => b.pts - a.pts || b.exactos - a.exactos || b.aciertos - a.aciertos);
-            }, [usersDb, predictions, realScores]);
+            }, [usersDb, predictions, realScores, rankingFilter]);
 
             // --- TABLAS Y CRUCES (Basados en Resultados Reales) ---
             const standings = useMemo(() => {
@@ -388,16 +483,6 @@
                 return sortedGroups;
             }, [realScores]);
 
-            const bestThirds = useMemo(() => {
-                if (Object.keys(standings).length === 0) return [];
-                const thirds = Object.keys(standings).map(g => ({ ...standings[g][2], group: g }));
-                return thirds.sort((a, b) => {
-                    if (b.pts !== a.pts) return b.pts - a.pts;
-                    if (b.dif !== a.dif) return b.dif - a.dif;
-                    return b.gf - a.gf;
-                });
-            }, [standings]);
-
             const getTeamFromStandings = (group, pos) => group && standings[group] && standings[group][pos] ? standings[group][pos] : null;
 
             const resolvedTeams = useMemo(() => {
@@ -435,10 +520,25 @@
 
             // --- ACCIONES ---
             const saveName = async () => {
-                if (!nameInput.trim() || !db || !user) return;
-                await window.firebaseModules.setDoc(window.firebaseModules.doc(db, 'quiniela_2026_users', user.uid), {
-                    uid: user.uid, name: nameInput.trim(), joinedAt: new Date().toISOString()
+                const trimmedName = nameInput.trim();
+                if (!trimmedName || !db || !user || !activeUid) return;
+
+                // Si el nombre ya existe, "iniciamos sesión" con esa cuenta
+                const existingUser = Object.values(usersDb || {}).find(
+                    u => u.name.toLowerCase() === trimmedName.toLowerCase()
+                );
+
+                if (existingUser) {
+                    localStorage.setItem('quiniela_active_uid', existingUser.uid);
+                    setActiveUid(existingUser.uid);
+                    return;
+                }
+
+                // Si no existe, lo registramos como nuevo
+                await window.firebaseModules.setDoc(window.firebaseModules.doc(db, 'quiniela_2026_users', activeUid), {
+                    uid: activeUid, name: trimmedName, joinedAt: new Date().toISOString()
                 });
+                localStorage.setItem('quiniela_active_uid', activeUid);
             };
 
             const handleScoreChange = (matchId, team, value) => {
@@ -446,7 +546,7 @@
                 if (value !== '' && !/^\d+$/.test(value)) return;
                 
                 if (activeTab === 'pronosticos') {
-                    const key = `${user.uid}_${matchId}`;
+                    const key = `${activeUid}_${matchId}`;
                     setPredictions(prev => ({ ...prev, [key]: { ...prev[key], [team]: value } }));
                 } else if (activeTab === 'reales') {
                     setRealScores(prev => ({ ...prev, [matchId]: { ...prev[matchId], [team]: value } }));
@@ -460,17 +560,17 @@
                 try {
                     const { doc, setDoc } = window.firebaseModules;
                     if (activeTab === 'pronosticos') {
-                        const p = predictions[`${user.uid}_${matchId}`];
+                        const p = predictions[`${activeUid}_${matchId}`];
                         if (p && p.score1 !== undefined && p.score2 !== undefined && p.score1 !== '' && p.score2 !== '') {
-                            await setDoc(doc(db, 'quiniela_2026_predictions', `${user.uid}_${matchId}`), {
-                                uid: user.uid, matchId, score1: Number(p.score1), score2: Number(p.score2), updatedAt: new Date().toISOString()
+                            await setDoc(doc(db, 'quiniela_2026_predictions', `${activeUid}_${matchId}`), {
+                                uid: activeUid, matchId, score1: Number(p.score1), score2: Number(p.score2), updatedAt: new Date().toISOString()
                             });
                         }
                     } else if (activeTab === 'reales') {
                         const r = realScores[matchId];
                         if (r && r.score1 !== undefined && r.score2 !== undefined && r.score1 !== '' && r.score2 !== '') {
                             await setDoc(doc(db, 'quiniela_2026_reales', matchId), {
-                                score1: Number(r.score1), score2: Number(r.score2), updatedBy: user.uid, updatedAt: new Date().toISOString()
+                                score1: Number(r.score1), score2: Number(r.score2), updatedBy: activeUid, updatedAt: new Date().toISOString()
                             });
                         }
                     }
@@ -481,17 +581,19 @@
             };
 
             // --- FILTROS Y DATOS ÚNICOS ---
-            const uniqueDates = useMemo(() => [...new Set(MATCHES_DATA.map(m => m.date))], []);
-            const uniqueGroups = useMemo(() => [...new Set(MATCHES_DATA.map(m => m.group))].sort(), []);
+            const uniqueDates = useMemo(() => [...new Set([...FRIENDLY_MATCHES, ...MATCHES_DATA].map(m => m.date))], []);
+            const uniqueGroups = useMemo(() => {
+                const groups = [...new Set(MATCHES_DATA.map(m => m.group))].sort();
+                return ["Amistoso", ...groups];
+            }, []);
             const uniqueTeams = useMemo(() => {
                 const teams = new Set();
-                MATCHES_DATA.forEach(m => { teams.add(m.team1); teams.add(m.team2); });
+                [...FRIENDLY_MATCHES, ...MATCHES_DATA].forEach(m => { teams.add(m.team1); teams.add(m.team2); });
                 return [...teams].sort();
             }, []);
 
-            // Filtro aplicado solo a Fase de Grupos
             const filteredMatches = useMemo(() => {
-                return MATCHES_DATA.filter(match => {
+                return [...FRIENDLY_MATCHES, ...MATCHES_DATA].filter(match => {
                     const matchDate = filterDate ? match.date === filterDate : true;
                     const matchGroup = filterGroup ? match.group === filterGroup : true;
                     const matchTeam = filterTeam ? (match.team1 === filterTeam || match.team2 === filterTeam) : true;
@@ -502,12 +604,15 @@
             const clearFilters = () => { setFilterDate(""); setFilterGroup(""); setFilterTeam(""); };
             const hasFilters = filterDate !== "" || filterGroup !== "" || filterTeam !== "";
 
+            const filteredFriendlies = useMemo(() => filteredMatches.filter(m => m.id.startsWith('a')), [filteredMatches]);
+            const filteredGroupStage = useMemo(() => filteredMatches.filter(m => m.id.startsWith('m')), [filteredMatches]);
+
             // --- UI HELPERS ---
             const renderMatchCard = (match, stageTitle, bg, color, focus, btn) => {
-                const isGroupMatch = match.id.startsWith('m');
+                const isStaticMatch = match.id.startsWith('m') || match.id.startsWith('a');
                 let t1Name, t2Name, isT1Resolved, isT2Resolved;
 
-                if (isGroupMatch) {
+                if (isStaticMatch) {
                     t1Name = match.team1;
                     t2Name = match.team2;
                     isT1Resolved = true;
@@ -520,15 +625,13 @@
                     isT2Resolved = tInfo.t2Resolved;
                 }
 
-                const t1Flag = isT1Resolved ? (TEAM_FLAGS[t1Name] || "🏴") : "❔";
-                const t2Flag = isT2Resolved ? (TEAM_FLAGS[t2Name] || "🏴") : "❔";
-
-                const pKey = `${user?.uid}_${match.id}`;
+                const pKey = `${activeUid}_${match.id}`;
                 const val1 = activeTab === 'pronosticos' ? predictions[pKey]?.score1 : realScores[match.id]?.score1;
                 const val2 = activeTab === 'pronosticos' ? predictions[pKey]?.score2 : realScores[match.id]?.score2;
                 
                 const lockedUI = activeTab === 'pronosticos' && isMatchLocked(match.date);
-                const disabledInput = !isFirebaseConfigured || lockedUI || activeTab === 'torneo' || activeTab === 'ranking';
+                const disabledInput = !isFirebaseConfigured || (activeTab === 'pronosticos' && lockedUI) || activeTab === 'torneo' || activeTab === 'ranking' || (activeTab === 'reales' && !isAdmin);
+                const showLockedBadge = (activeTab === 'pronosticos' && lockedUI) || (activeTab === 'reales' && !isAdmin);
 
                 return (
                     <div key={match.id} className="bg-white rounded-2xl p-4 md:p-5 shadow-sm border border-slate-200 flex flex-col relative overflow-hidden">
@@ -558,8 +661,8 @@
                                     <span className={`font-bold text-xs md:text-sm leading-tight ${isT1Resolved ? 'text-slate-800' : 'text-slate-400'}`}>{t1Name}</span>
                                     {isT1Resolved && match.label1 && <span className="text-[9px] text-slate-400 uppercase tracking-widest">{match.label1}</span>}
                                 </div>
-                                <span className="text-3xl md:text-4xl drop-shadow-sm opacity-90">{t1Flag}</span>
-                                <div className="flex md:hidden flex-col items-center">
+                                {renderFlag(t1Name, isT1Resolved, "w-10 h-7 md:w-14 md:h-10")}
+                                <div className="flex md:hidden flex-col items-center mt-1">
                                     <span className={`font-bold text-[10px] leading-tight ${isT1Resolved ? 'text-slate-800' : 'text-slate-400'}`}>{t1Name}</span>
                                 </div>
                             </div>
@@ -571,12 +674,12 @@
                             </div>
 
                             <div className="flex flex-col md:flex-row items-center gap-2 w-[35%] text-center md:text-left md:justify-start">
-                                <span className="text-3xl md:text-4xl drop-shadow-sm opacity-90">{t2Flag}</span>
+                                {renderFlag(t2Name, isT2Resolved, "w-10 h-7 md:w-14 md:h-10")}
                                 <div className="hidden md:flex flex-col items-start">
                                     <span className={`font-bold text-xs md:text-sm leading-tight ${isT2Resolved ? 'text-slate-800' : 'text-slate-400'}`}>{t2Name}</span>
                                     {isT2Resolved && match.label2 && <span className="text-[9px] text-slate-400 uppercase tracking-widest">{match.label2}</span>}
                                 </div>
-                                <div className="flex md:hidden flex-col items-center">
+                                <div className="flex md:hidden flex-col items-center mt-1">
                                     <span className={`font-bold text-[10px] leading-tight ${isT2Resolved ? 'text-slate-800' : 'text-slate-400'}`}>{t2Name}</span>
                                 </div>
                             </div>
@@ -591,7 +694,7 @@
                                         </span>
                                     ))}
                                 </div>
-                                {lockedUI ? (
+                                {showLockedBadge ? (
                                     <div className="flex items-center gap-1 text-slate-500 text-xs font-bold bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
                                         <Lock className="w-4 h-4" /> Cerrado
                                     </div>
@@ -616,15 +719,21 @@
             };
 
             // MODAL DE REGISTRO INICIAL
-            if (isFirebaseConfigured && user && usersDb !== null && !usersDb[user.uid]) {
+            if (isFirebaseConfigured && user && activeUid && usersDb !== null && !usersDb[activeUid]) {
                 return (
                     <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
                         <div className="bg-white p-8 rounded-3xl w-full max-w-sm text-center shadow-2xl">
                             <Trophy className="w-16 h-16 text-amber-500 mx-auto mb-4" />
                             <h2 className="text-2xl font-black text-slate-800 mb-2">¡Bienvenido!</h2>
                             <p className="text-sm text-slate-500 mb-6">Ingresa tu nombre o apodo para unirte a la Quiniela 2026.</p>
-                            <input type="text" value={nameInput} onChange={e=>setNameInput(e.target.value)} placeholder="Ej: Marco..." className="w-full text-center text-xl font-bold p-4 border-2 border-slate-200 rounded-xl focus:border-teal-500 outline-none mb-6"/>
-                            <button onClick={saveName} disabled={!nameInput.trim()} className="w-full bg-teal-600 text-white font-black py-4 rounded-xl hover:bg-teal-700 disabled:opacity-50 transition-colors">Entrar a Jugar</button>
+                            <input 
+                                type="text" 
+                                value={nameInput} 
+                                onChange={e => setNameInput(e.target.value)} 
+                                placeholder="Ej: Marco..." 
+                                className="w-full text-center text-xl font-bold p-4 border-2 border-slate-200 rounded-xl focus:border-teal-500 outline-none mb-6"
+                            />
+                            <button onClick={saveName} disabled={!nameInput.trim()} className={`w-full text-white font-black py-4 rounded-xl transition-colors ${!nameInput.trim() ? 'bg-slate-300' : 'bg-teal-600 hover:bg-teal-700'}`}>Entrar a Jugar</button>
                         </div>
                     </div>
                 );
@@ -636,17 +745,12 @@
                         <div className="max-w-6xl mx-auto flex flex-col gap-3">
                             <div className="flex items-center justify-between">
                                 <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight flex items-center gap-2">
-                                    <UsersIcon className="w-6 h-6 md:w-8 md:h-8" />
+                                    <Users className="w-6 h-6 md:w-8 md:h-8" />
                                     Quiniela en Vivo
                                 </h1>
-                                {(activeTab === 'pronosticos' || activeTab === 'reales') && (
-                                    <button onClick={() => setShowFilters(!showFilters)} className="md:hidden bg-white/20 p-2 rounded-lg backdrop-blur-sm flex items-center gap-2 text-sm font-semibold">
-                                        <Filter className="w-4 h-4" /> Filtros
-                                    </button>
-                                )}
                             </div>
                             <p className="text-emerald-100 text-xs md:text-sm">
-                                {isFirebaseConfigured ? `Hola, ${usersDb?.[user?.uid]?.name || 'Jugador'} 🟢` : "🟡 Conectando con Firebase..."}
+                                {isFirebaseConfigured ? `Hola, ${usersDb?.[activeUid]?.name || 'Jugador'} 🟢` : "🟡 Conectando con Firebase..."}
                             </p>
                         </div>
                     </header>
@@ -661,69 +765,100 @@
                             </div>
                         )}
                         {activeTab === 'reales' && (
-                            <div className="mb-6 bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-2xl flex items-start gap-3">
-                                <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                                <div className="text-sm font-medium">¡ATENCIÓN! Estás en la pestaña de <b>Resultados Oficiales</b>. Los datos que ingreses aquí afectarán el Ranking y el Torneo para TODOS los jugadores. Solo anota resultados cuando los partidos hayan terminado en la vida real.</div>
+                            <div className="mb-6 bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-2xl flex items-start justify-between gap-3">
+                                <div className="flex items-start gap-3">
+                                    <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                                    <div className="text-sm font-medium">
+                                        ¡ATENCIÓN! Estás en la pestaña de <b>Resultados Oficiales</b>. 
+                                        {!isAdmin ? " Solo el administrador de la quiniela puede modificar esto." : " Modo administrador activado. Ingresa los resultados con cuidado."}
+                                    </div>
+                                </div>
+                                {!isAdmin ? (
+                                    <button onClick={() => setShowAdminModal(true)} className="bg-rose-200 hover:bg-rose-300 text-rose-800 p-2 rounded-lg transition-colors flex-shrink-0" title="Desbloquear">
+                                        <Lock className="w-5 h-5" />
+                                    </button>
+                                ) : (
+                                    <button onClick={() => setIsAdmin(false)} className="bg-emerald-200 hover:bg-emerald-300 text-emerald-800 p-2 rounded-lg transition-colors flex-shrink-0" title="Cerrar sesión de administrador">
+                                        <Unlock className="w-5 h-5" />
+                                    </button>
+                                )}
                             </div>
                         )}
 
                         {/* === VISTA PARTIDOS (Pronósticos y Reales) === */}
                         {(activeTab === 'pronosticos' || activeTab === 'reales') && (
                             <div className="flex flex-col gap-8">
-                                {/* SECCIÓN DE FILTROS RESTAURADA */}
-                                <section className={`bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-100 mb-2 transition-all duration-300 ${showFilters ? 'block' : 'hidden md:block'}`}>
+                                {/* SECCIÓN DE FILTROS SIEMPRE VISIBLE */}
+                                <section className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-100 mb-2">
                                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                                         <div className="flex flex-col gap-1">
                                             <label className="text-xs font-bold text-slate-500 uppercase ml-1">Fecha</label>
-                                            <select value={filterDate} onChange={(e) => setFilterDate(e.target.value)} className="w-full p-3.5 md:p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500 text-sm md:text-base cursor-pointer appearance-none">
+                                            <select value={filterDate} onChange={(e) => setFilterDate(e.target.value)} className="w-full p-3.5 md:p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500 text-sm md:text-base cursor-pointer">
                                                 <option value="">Todas</option>
                                                 {uniqueDates.map(date => <option key={date} value={date}>{date}</option>)}
                                             </select>
                                         </div>
                                         <div className="flex flex-col gap-1">
                                             <label className="text-xs font-bold text-slate-500 uppercase ml-1">Grupo</label>
-                                            <select value={filterGroup} onChange={(e) => setFilterGroup(e.target.value)} className="w-full p-3.5 md:p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500 text-sm md:text-base cursor-pointer appearance-none">
+                                            <select value={filterGroup} onChange={(e) => setFilterGroup(e.target.value)} className="w-full p-3.5 md:p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500 text-sm md:text-base cursor-pointer">
                                                 <option value="">Todos</option>
-                                                {uniqueGroups.map(g => <option key={g} value={g}>Grupo {g}</option>)}
+                                                {uniqueGroups.map(g => <option key={g} value={g}>{g === 'Amistoso' ? g : `Grupo ${g}`}</option>)}
                                             </select>
                                         </div>
                                         <div className="flex flex-col gap-1">
                                             <label className="text-xs font-bold text-slate-500 uppercase ml-1">Equipo</label>
-                                            <select value={filterTeam} onChange={(e) => setFilterTeam(e.target.value)} className="w-full p-3.5 md:p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500 text-sm md:text-base cursor-pointer appearance-none">
+                                            <select value={filterTeam} onChange={(e) => setFilterTeam(e.target.value)} className="w-full p-3.5 md:p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500 text-sm md:text-base cursor-pointer">
                                                 <option value="">Todos</option>
                                                 {uniqueTeams.map(t => <option key={t} value={t}>{TEAM_FLAGS[t] || "🏴"} {t}</option>)}
                                             </select>
                                         </div>
                                         <div className="flex flex-col gap-1 justify-end mt-2 md:mt-0">
                                             <button onClick={clearFilters} disabled={!hasFilters} className="w-full p-3.5 md:p-3 flex items-center justify-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl font-bold transition-colors disabled:opacity-0 disabled:pointer-events-none">
-                                                <X className="w-5 h-5" /> Limpiar Filtros
+                                                <X className="w-5 h-5" /> Limpiar
                                             </button>
                                         </div>
                                     </div>
                                 </section>
 
-                                <div>
-                                    <div className="flex items-center gap-2 font-black text-xl md:text-2xl mb-4 text-slate-800">
-                                        <Calendar className="w-6 h-6" /> Fase de Grupos
-                                    </div>
-                                    <div className="mb-4 text-slate-500 text-sm font-medium px-1">
-                                        {filteredMatches.length} {filteredMatches.length === 1 ? 'partido' : 'partidos'}
-                                    </div>
-                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                                        {filteredMatches.map(match => renderMatchCard(match, `Fase de Grupos`, 'bg-slate-100', 'text-slate-600', 'focus:border-teal-500', 'bg-teal-600'))}
-                                    </div>
-                                    {filteredMatches.length === 0 && (
-                                        <div className="text-center py-12 bg-white rounded-2xl border border-slate-100 shadow-sm mt-4">
-                                            <Filter className="w-12 h-12 mx-auto text-slate-300 mb-4" />
-                                            <h3 className="text-lg font-bold text-slate-700">No hay partidos</h3>
-                                            <p className="text-slate-500 text-sm mt-2">Intenta cambiar los filtros de arriba.</p>
+                                {filteredFriendlies.length > 0 && (
+                                    <div className="mb-4">
+                                        <div className="flex items-center gap-2 font-black text-xl md:text-2xl mb-4 text-emerald-700">
+                                            <Info className="w-6 h-6" /> Amistosos (Prueba)
                                         </div>
-                                    )}
-                                </div>
+                                        <div className="mb-4 text-slate-500 text-sm font-medium px-1">
+                                            {filteredFriendlies.length} {filteredFriendlies.length === 1 ? 'partido' : 'partidos'}
+                                        </div>
+                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                                            {filteredFriendlies.map(match => renderMatchCard(match, `Amistoso`, 'bg-emerald-100', 'text-emerald-700', 'focus:border-emerald-500', 'bg-emerald-600'))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {filteredGroupStage.length > 0 && (
+                                    <div>
+                                        <div className="flex items-center gap-2 font-black text-xl md:text-2xl mb-4 text-slate-800">
+                                            <Calendar className="w-6 h-6" /> Fase de Grupos
+                                        </div>
+                                        <div className="mb-4 text-slate-500 text-sm font-medium px-1">
+                                            {filteredGroupStage.length} {filteredGroupStage.length === 1 ? 'partido' : 'partidos'}
+                                        </div>
+                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                                            {filteredGroupStage.map(match => renderMatchCard(match, `Fase de Grupos`, 'bg-slate-100', 'text-slate-600', 'focus:border-teal-500', 'bg-teal-600'))}
+                                        </div>
+                                    </div>
+                                )}
+                                
+                                {filteredMatches.length === 0 && (
+                                    <div className="text-center py-12 bg-white rounded-2xl border border-slate-100 shadow-sm mt-4">
+                                        <Filter className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+                                        <h3 className="text-lg font-bold text-slate-700">No hay partidos</h3>
+                                        <p className="text-slate-500 text-sm mt-2">Intenta cambiar los filtros de arriba.</p>
+                                    </div>
+                                )}
                                 
                                 {/* Ocultar rondas eliminatorias si el usuario está buscando algo en específico */}
                                 {!hasFilters && KNOCKOUT_ROUNDS.map((round, idx) => (
-                                    <div key={idx}>
+                                    <div key={idx} className="mt-8">
                                         <div className={`flex items-center gap-2 font-black text-xl md:text-2xl mb-4 ${round.color}`}>
                                             <Swords className="w-6 h-6" /> {round.title}
                                         </div>
@@ -764,7 +899,7 @@
                                                             <tr key={teamData.team} className={`border-b border-slate-50 hover:bg-slate-50 ${index < 2 ? 'bg-indigo-50/30' : index === 2 ? 'bg-amber-50/20' : ''}`}>
                                                                 <td className="px-4 py-3 font-bold text-slate-800 flex items-center gap-2">
                                                                     <span className="text-slate-400 font-normal w-3">{index + 1}</span>
-                                                                    <span className="text-xl" title={teamData.team}>{TEAM_FLAGS[teamData.team] || "🏴"}</span>
+                                                                    {renderFlag(teamData.team, true, "w-6 h-4")}
                                                                     <span className="truncate max-w-[100px] sm:max-w-full">{teamData.team}</span>
                                                                 </td>
                                                                 <td className="px-2 py-3 text-center text-slate-600">{teamData.pj}</td>
@@ -796,45 +931,97 @@
 
                         {/* === VISTA RANKING === */}
                         {activeTab === 'ranking' && (
-                            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                                <div className="bg-gradient-to-r from-slate-800 to-slate-900 px-6 py-4 text-white flex items-center justify-between">
-                                    <h2 className="text-xl md:text-2xl font-black flex items-center gap-2"><BarChart className="w-6 h-6 text-amber-400" /> Posiciones</h2>
-                                    <div className="text-[10px] md:text-xs text-slate-300 text-right">
-                                        Pleno: <b className="text-amber-400">3 pts</b><br/>Resultado: <b className="text-amber-400">1 pt</b>
-                                    </div>
+                            <div className="flex flex-col gap-4">
+                                {/* Selector de Ranking */}
+                                <div className="flex bg-slate-200 p-1 rounded-xl">
+                                    <button
+                                        onClick={() => setRankingFilter('mundial')}
+                                        className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors shadow-sm ${rankingFilter === 'mundial' ? 'bg-white text-slate-800' : 'text-slate-500 hover:text-slate-700 shadow-none'}`}
+                                    >
+                                        🏆 Ranking Mundial
+                                    </button>
+                                    <button
+                                        onClick={() => setRankingFilter('amistosos')}
+                                        className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors shadow-sm ${rankingFilter === 'amistosos' ? 'bg-emerald-600 text-white' : 'text-slate-500 hover:text-slate-700 shadow-none'}`}
+                                    >
+                                        ⚽ Amistosos (Prueba)
+                                    </button>
                                 </div>
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-left">
-                                        <thead className="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-200">
-                                            <tr>
-                                                <th className="px-4 py-4 font-bold text-center w-12">Pos</th>
-                                                <th className="px-4 py-4 font-bold">Jugador</th>
-                                                <th className="px-2 py-4 text-center font-bold" title="Resultados Exactos (3 pts)">Plenos</th>
-                                                <th className="px-2 py-4 text-center font-bold" title="Aciertos Parciales (1 pt)">Aciertos</th>
-                                                <th className="px-4 py-4 text-center font-black text-slate-800">Puntos</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-slate-100">
-                                            {rankingList.map((rank, i) => (
-                                                <tr key={rank.uid} className={rank.uid === user?.uid ? 'bg-amber-50/40' : 'hover:bg-slate-50'}>
-                                                    <td className="px-4 py-4 text-center text-slate-400 font-bold">{i + 1}</td>
-                                                    <td className="px-4 py-4 font-bold text-slate-800 flex items-center gap-2">
-                                                        {i === 0 && <Trophy className="w-4 h-4 text-amber-500" />}
-                                                        <span className="truncate max-w-[120px] md:max-w-full">{rank.name}</span>
-                                                        {rank.uid === user?.uid && <span className="text-[9px] bg-amber-200 text-amber-800 px-1.5 py-0.5 rounded font-black">TÚ</span>}
-                                                    </td>
-                                                    <td className="px-2 py-4 text-center text-slate-500">{rank.exactos}</td>
-                                                    <td className="px-2 py-4 text-center text-slate-500">{rank.aciertos}</td>
-                                                    <td className="px-4 py-4 text-center text-xl font-black text-amber-500">{rank.pts}</td>
+
+                                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                                    <div className={`px-6 py-4 text-white flex items-center justify-between ${rankingFilter === 'mundial' ? 'bg-gradient-to-r from-slate-800 to-slate-900' : 'bg-gradient-to-r from-emerald-700 to-emerald-900'}`}>
+                                        <h2 className="text-xl md:text-2xl font-black flex items-center gap-2">
+                                            <BarChart className={`w-6 h-6 ${rankingFilter === 'mundial' ? 'text-amber-400' : 'text-emerald-300'}`} />
+                                            Posiciones {rankingFilter === 'mundial' ? 'Oficiales' : 'de Prueba'}
+                                        </h2>
+                                        <div className={`text-[10px] md:text-xs text-right ${rankingFilter === 'mundial' ? 'text-slate-300' : 'text-emerald-100'}`}>
+                                            Pleno: <b className={rankingFilter === 'mundial' ? 'text-amber-400' : 'text-white'}>3 pts</b><br/>Resultado: <b className={rankingFilter === 'mundial' ? 'text-amber-400' : 'text-white'}>1 pt</b>
+                                        </div>
+                                    </div>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left">
+                                            <thead className="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-200">
+                                                <tr>
+                                                    <th className="px-4 py-4 font-bold text-center w-12">Pos</th>
+                                                    <th className="px-4 py-4 font-bold">Jugador</th>
+                                                    <th className="px-2 py-4 text-center font-bold" title="Resultados Exactos (3 pts)">Plenos</th>
+                                                    <th className="px-2 py-4 text-center font-bold" title="Aciertos Parciales (1 pt)">Aciertos</th>
+                                                    <th className="px-4 py-4 text-center font-black text-slate-800">Puntos</th>
                                                 </tr>
-                                            ))}
-                                            {rankingList.length === 0 && <tr><td colSpan="5" className="text-center py-12 text-slate-400">Aún no hay jugadores con puntos.</td></tr>}
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-100">
+                                                {rankingList.map((rank, i) => (
+                                                    <tr key={rank.uid} className={rank.uid === activeUid ? (rankingFilter === 'mundial' ? 'bg-amber-50/40' : 'bg-emerald-50/40') : 'hover:bg-slate-50'}>
+                                                        <td className="px-4 py-4 text-center text-slate-400 font-bold">{i + 1}</td>
+                                                        <td className="px-4 py-4 font-bold text-slate-800 flex items-center gap-2">
+                                                            {i === 0 && <Trophy className={`w-4 h-4 ${rankingFilter === 'mundial' ? 'text-amber-500' : 'text-emerald-500'}`} />}
+                                                            <span className="truncate max-w-[120px] md:max-w-full">{rank.name}</span>
+                                                            {rank.uid === activeUid && <span className={`text-[9px] px-1.5 py-0.5 rounded font-black ${rankingFilter === 'mundial' ? 'bg-amber-200 text-amber-800' : 'bg-emerald-200 text-emerald-800'}`}>TÚ</span>}
+                                                        </td>
+                                                        <td className="px-2 py-4 text-center text-slate-500">{rank.exactos}</td>
+                                                        <td className="px-2 py-4 text-center text-slate-500">{rank.aciertos}</td>
+                                                        <td className={`px-4 py-4 text-center text-xl font-black ${rankingFilter === 'mundial' ? 'text-amber-500' : 'text-emerald-600'}`}>{rank.pts}</td>
+                                                    </tr>
+                                                ))}
+                                                {rankingList.length === 0 && <tr><td colSpan="5" className="text-center py-12 text-slate-400">Aún no hay jugadores con puntos en esta fase.</td></tr>}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         )}
                     </main>
+
+                    {/* MODAL DE CONTRASEÑA DE ADMINISTRADOR */}
+                    {showAdminModal && (
+                        <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                            <div className="bg-white p-8 rounded-3xl w-full max-w-sm text-center shadow-2xl">
+                                <Lock className="w-16 h-16 text-rose-500 mx-auto mb-4" />
+                                <h2 className="text-2xl font-black text-slate-800 mb-2">Administrador</h2>
+                                <p className="text-sm text-slate-500 mb-6">Ingresa la contraseña para editar los resultados oficiales.</p>
+                                <input 
+                                    type="password" 
+                                    value={adminPwdInput} 
+                                    onChange={e => { setAdminPwdInput(e.target.value); setAdminPwdError(""); }} 
+                                    placeholder="Contraseña" 
+                                    className={`w-full text-center text-xl font-bold p-4 border-2 rounded-xl outline-none mb-2 ${adminPwdError ? 'border-red-400 bg-red-50' : 'border-slate-200 focus:border-rose-500'}`}
+                                />
+                                {adminPwdError && <p className="text-red-500 text-xs font-bold mb-4">{adminPwdError}</p>}
+                                <div className="flex gap-2 mt-4">
+                                    <button onClick={() => { setShowAdminModal(false); setAdminPwdInput(""); setAdminPwdError(""); }} className="flex-1 bg-slate-200 text-slate-700 font-black py-4 rounded-xl hover:bg-slate-300 transition-colors">Cancelar</button>
+                                    <button onClick={() => {
+                                        if (adminPwdInput === "2026") {
+                                            setIsAdmin(true);
+                                            setShowAdminModal(false);
+                                            setAdminPwdInput("");
+                                        } else {
+                                            setAdminPwdError("Contraseña incorrecta");
+                                        }
+                                    }} className="flex-1 bg-rose-600 text-white font-black py-4 rounded-xl hover:bg-rose-700 transition-colors">Entrar</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around pb-safe pt-2 px-1 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-30">
                         <button onClick={() => setActiveTab('pronosticos')} className={`flex flex-col items-center p-2 min-w-[70px] rounded-xl transition-colors ${activeTab === 'pronosticos' ? 'text-teal-600' : 'text-slate-400 hover:bg-slate-50'}`}>
